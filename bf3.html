@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brute Demo</title>
+    <style>
+        body {
+            font-family: monospace;
+            margin: 0;
+            background-color: #ffffff;
+            color: #111;
+            transition: background-color 0.3s;
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        .corner-btn {
+            position: fixed;
+            z-index: 1000;
+            font-size: 2rem;
+            font-weight: bold;
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            color: #333;
+            border: 2px solid #eee;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.15s;
+        }
+        .corner-btn:active {
+            transform: scale(0.95);
+        }
+        .top-left-btn {
+            top: 20px;
+            left: 20px;
+        }
+        .top-right-btn {
+            top: 20px;
+            right: 20px;
+        }
+        .info-box {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            background-color: white;
+            border: 1px solid black;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            z-index: 999;
+            max-width: 340px;
+        }
+        .info-box p {
+            margin: 0 0 6px 0;
+        }
+        .button-container {
+            position: fixed;
+            left: 20px;
+            top: calc(50% + 55px);
+            display: flex;
+            gap: 10px;
+            z-index: 999;
+        }
+        .action-btn {
+            padding: 12px 24px;
+            border: 1px solid black;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            min-width: 96px;
+            text-align: center;
+        }
+        
+        /* === PERUBAHAN WARNA DIMULAI DI SINI === */
+        .change-target-btn {
+            background-color: #F08080; /* Merah Terang */
+        }
+        .play-btn {
+            background-color: #90EE90; /* Hijau Terang */
+            color: black; /* Ubah warna teks agar mudah dibaca */
+        }
+        .play-btn.stopping {
+            background-color: #F08080; /* Merah Terang */
+            color: white;
+        }
+        .mode-btn {
+            background-color: #ADD8E6; /* Biru Muda */
+            color: black;
+        }
+        /* === AKHIR PERUBAHAN WARNA === */
+        
+        .mode-btn.acak {
+            background-color: #FFD700; /* Warna kuning untuk mode acak tetap */
+            color: black;
+        }
+        .realtime-panel {
+            position: fixed;
+            left: 20px;
+            top: calc(50% + 115px);
+            z-index: 999;
+            width: 360px;
+            background: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+        .realtime-row {
+            margin: 6px 0;
+        }
+        .realtime-label {
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        
+        /* === STYLE BARU UNTUK TOMBOL BAWAH & MODAL === */
+        .bottom-button-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 1500;
+        }
+        .bottom-btn {
+            background-color: white;
+            border: 1px solid black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: black;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 2000;
+            display: none; /* Disembunyikan secara default */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .info-modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 600px;
+            height: 95%;
+            position: relative; /* Diperlukan untuk positioning tombol close */
+            overflow-y: auto;
+        }
+        .modal-close-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            border: 1px solid black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* === AKHIR STYLE BARU === */
+    </style>
+</head>
+<body>
+
+    <div class="info-box">
+        <p><b>Target:</b> <span id="display-target">-</span></p>
+        <p><b>Balance:</b> <span id="display-balance">-</span> BTC</p>
+        <p><b>Max key:</b> <span id="display-maxkey">-</span></p>
+    </div>
+
+    <div class="button-container">
+        <button id="change-target-btn" class="action-btn change-target-btn">Change target</button>
+        <button id="mode-btn" class="action-btn mode-btn">Urut</button>
+        <button id="play-btn" class="action-btn play-btn">Play</button>
+    </div>
+    <div class="realtime-panel">
+        <div class="realtime-row">
+            <span class="realtime-label">Mode:</span> <span id="rt-mode">-</span>
+        </div>
+        <div class="realtime-row">
+            <span class="realtime-label">Key:</span> <span id="rt-key">-</span>
+        </div>
+        <div class="realtime-row">
+            <span class="realtime-label">Address:</span> <span id="rt-address">-</span>
+        </div>
+    </div>
+
+    <div class="info-modal" id="info-modal">
+        <div class="info-modal-content">
+            <h1>About this website</h1>
+            <hr>
+            	<br>
+            <p><strong>Apa yang terjadi saat kamu menekan tombol play?</strong></p>
+            <p><li>sebelum lanjut, penting untuk tau ini : <br><pre>   Address = hash ( key )</pre><pre>   Key = Angka ( 1 - 10000 )</pre></p>
+            <p><li>Mode : <br><pre>   acak : mencoba kunci dari acak sampai 10000</pre><pre>   urut : mencoba kunci dari 1 sampai 10000</pre>
+            <p><li>Pertama, sistem mencoba angka 1, lalu hash angka tersebut menggukanan SHA-256</p>
+            <p><li>Akan tercipta dua kondisi :<br><pre>  | Jika address yang dihasilkan tidak sama dengan<br>    target address maka sistem mencoba kunci<br>    sampai habis (10000)<br><pre>  | jika address yang ditemukan sama dengan target<br>    address maka sistem akan berhenti mencari kunci. </p>
+            <p><li>Fungsi button change target :<br><pre>   Tombol "Change Target" berfungsi untuk mengganti<pre>   target address dengan alamat baru yang dihasilkan<pre>   secara acak dan menampilkan balance acak di kotak<pre>   informasi pada halaman web.</p>
+            
+            <button class="modal-close-btn" id="modal-close-btn">Close</button>
+        </div>
+    </div>
+
+    <div class="bottom-button-container">
+        <button class="bottom-btn" id="info-btn">Informasi</button>
+        <a href="nvme_hackkey.html" class="bottom-btn">back</a>
+    </div>
+    <script>
+        const MAX_KEY_DEFAULT = 10000;
+        const DELAY_MS = 0.01;
+
+        const displayTarget = document.getElementById('display-target');
+        const displayBalance = document.getElementById('display-balance');
+        const displayMaxKey = document.getElementById('display-maxkey');
+        const modeBtn = document.getElementById('mode-btn');
+        const playBtn = document.getElementById('play-btn');
+        const changeTargetBtn = document.getElementById('change-target-btn');
+        const rtMode = document.getElementById('rt-mode');
+        const rtKey = document.getElementById('rt-key');
+        const rtAddress = document.getElementById('rt-address');
+        
+        // === VARIABEL BARU UNTUK MODAL ===
+        const infoBtn = document.getElementById('info-btn');
+        const infoModal = document.getElementById('info-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        let mode = 'urut';
+        let maxKey = MAX_KEY_DEFAULT;
+        let isRunning = false;
+        let stopRequested = false;
+
+        // Utility function
+        function sleep(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+
+        async function sha256Hex(message) {
+            const enc = new TextEncoder();
+            const buf = enc.encode(message);
+            const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+            return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function formatAddressFromHash(h) {
+            return '1' + h.substring(0, 33);
+        }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function buildKeys() {
+            const arr = [...Array(maxKey).keys()].map(i => i + 1);
+            return (mode === 'acak') ? shuffle(arr) : arr;
+        }
+
+        // Random balance (probabilitas)
+        function generateRandomBalance() {
+            const r = Math.random();
+            if (r < 0.009) return (1 + Math.random() * 49).toFixed(8);
+            else if (r < 0.059) return (0.09 + Math.random() * 0.91).toFixed(8);
+            else if (r < 0.159) return (0.009 + Math.random() * 0.081).toFixed(8);
+            else {
+                return (Math.random() < 0.40) ? "0" : (Math.random() * 0.009).toFixed(8);
+            }
+        }
+
+        function updateModeLabel() {
+            rtMode.textContent = mode === 'urut' ? `Urut: dari 1 - ${maxKey}` : `Acak: dari acak - ${maxKey}`;
+        }
+        
+        // Background flash effect when key is found
+        function showKeyFound() {
+            document.body.style.backgroundColor = "orange";
+            setTimeout(() => {
+                document.body.style.backgroundColor = "white";
+            }, 500);
+        }
+
+        // Change target
+        async function generateNewTarget() {
+            const randomDecimal = Math.floor(Math.random() * maxKey) + 1;
+            const hash = await sha256Hex(randomDecimal.toString());
+            displayTarget.textContent = formatAddressFromHash(hash);
+            displayBalance.textContent = generateRandomBalance();
+        }
+        changeTargetBtn.onclick = generateNewTarget;
+
+        // Mode toggle
+        modeBtn.onclick = () => {
+            if (mode === 'urut') {
+                mode = 'acak';
+                modeBtn.textContent = "Acak";
+                modeBtn.classList.add('acak');
+            } else {
+                mode = 'urut';
+                modeBtn.textContent = "Urut";
+                modeBtn.classList.remove('acak');
+            }
+            updateModeLabel();
+        }
+
+        // Play
+        playBtn.onclick = async () => {
+            if (isRunning) {
+                stopRequested = true;
+                playBtn.textContent = "Stopping...";
+                playBtn.disabled = true;
+                return;
+            }
+            isRunning = true;
+            stopRequested = false;
+            playBtn.textContent = "Stop";
+            playBtn.classList.add('stopping');
+            updateModeLabel();
+            try {
+                const target = displayTarget.textContent;
+                const keys = buildKeys();
+                for (let k of keys) {
+                    if (stopRequested) break;
+                    const hash = await sha256Hex(k.toString());
+                    const addr = formatAddressFromHash(hash);
+                    rtKey.textContent = k;
+                    rtAddress.textContent = addr;
+                    if (addr === target) {
+                        showKeyFound();
+                        break;
+                    }
+                    await sleep(DELAY_MS);
+                }
+            } finally {
+                isRunning = false;
+                stopRequested = false;
+                playBtn.disabled = false;
+                playBtn.textContent = "Play";
+                playBtn.classList.remove('stopping');
+            }
+        }
+        
+        // === FUNGSI BARU UNTUK MODAL ===
+        // Tampilkan modal saat tombol "Informasi" diklik
+        infoBtn.onclick = () => {
+            infoModal.style.display = 'flex';
+        };
+
+        // Sembunyikan modal saat tombol "Close" di dalam modal diklik
+        modalCloseBtn.onclick = () => {
+            infoModal.style.display = 'none';
+        };
+        // === AKHIR FUNGSI BARU ===
+
+        // Init
+        (async () => {
+            maxKey = MAX_KEY_DEFAULT;
+            displayMaxKey.textContent = maxKey;
+            updateModeLabel();
+            await generateNewTarget(); // langsung generate target pas buka
+        })();
+    </script>
+</body>
+</html>

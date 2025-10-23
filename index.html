@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Splash</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #fff; /* latar belakang putih */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        img {
+            width: 300px; /* ukuran logo besar */
+            height: auto;
+            opacity: 0;
+            animation: fadeInOut 1.5s ease-in-out forwards;
+        }
+
+        .text {
+            font-family: monospace;
+            font-size: 20px;
+            color: #000;
+            opacity: 0;
+            animation: fadeInOut 1.5s ease-in-out forwards;
+            animation-delay: 0s;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.9); }
+            25% { opacity: 1; transform: scale(1); }
+            75% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.05); }
+        }
+    </style>
+    <script>
+        // Redirect ke tnc.html setelah 1.5 detik
+        setTimeout(function() {
+            window.location.href = "tnc.html";
+        }, 1500);
+    </script>
+</head>
+<body>
+    <img src="bitcoin.png" alt="Bitcoin Logo">
+    <div class="text">@alxbt</div>
+</body>
+</html>

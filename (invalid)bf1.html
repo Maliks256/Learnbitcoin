@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Blockchain.M</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+    
+    <style>
+        /* CSS UTAMA */
+        body {
+            background-color: white;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        /* HEADER UNTUK POSISI TOMBOL */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 10;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        /* STYLING UMUM TOMBOL */
+        .header button {
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            line-height: 1; 
+            padding: 0;
+            margin-left: 10px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        /* Tombol Info di Kiri Atas */
+        .info-button {
+            order: -1;
+            margin-right: auto;
+            color: #1976D2; 
+            border: 1px solid black; 
+            pointer-events: auto; 
+        }
+
+        /* Tombol Back */
+        .back-button {
+            color: #D32F2F; 
+        }
+
+        /* CONTAINER UTAMA KONTEN */
+        .main-content {
+            padding-top: 80px;
+            padding-left: 20px;
+            padding-right: 20px;
+            text-align: left;
+            padding-bottom: 50px;
+        }
+
+        /* JUDUL MAIN */
+        .main-content h1 {
+            font-family: monospace;
+            color: #000;
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: left;
+            padding-left: 0;
+        }
+
+        /* KOTAK TRANSAKSI GENESIS */
+        .transaction-box {
+            background-color: white;
+            border: 1px solid black; 
+            border-radius: 10px; 
+            padding: 15px;
+            margin: 0 0 20px 0;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left; 
+        }
+        .transaction-box p {
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .transaction-box strong {
+            color: #4CAF50; 
+        }
+
+        /* JUDUL LETS FORCE */
+        .force-title {
+            font-family: monospace;
+            color: #000;
+            font-size: 32px;
+            margin: 50px 0 25px 0;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* KOTAK HASIL BRUTE FORCE (SINGLE BOX) */
+        .force-box {
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 0 0 15px 0;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            position: relative;
+        }
+
+        .force-box p {
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .force-box .label {
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .force-box .balance {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .force-box .balance.zero {
+            color: #FF5722;
+        }
+
+        /* KONTROL INPUTS */
+        .input-controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column; 
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-controls input, .input-controls select {
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px; 
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            width: 150px;
+            box-sizing: border-box;
+        }
+        
+        .input-controls select {
+            width: 200px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="black" d="m0 0 2 2 2-2z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+
+        .input-controls label {
+            font-weight: bold;
+            color: #333;
+            font-family: monospace;
+            width: 50px; 
+        }
+
+        /* RUN BUTTON */
+        .run-button {
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: monospace;
+            color: black;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        /* KOTAK HASIL DITEMUKAN (LOG) */
+        #foundAddressesContainer {
+            margin-top: 40px;
+            padding-top: 20px;
+        }
+        #foundAddressesContainer .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        #foundAddressesContainer h2 {
+            font-family: monospace;
+            color: #D32F2F;
+            font-size: 20px;
+            margin: 0;
+        }
+        
+        #foundAddresses p {
+            font-family: monospace;
+            font-size: 14px;
+            color: #000;
+            margin: 5px 0;
+            word-break: break-all;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 3px;
+        }
+        
+        #showAllBtn {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px 10px; 
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12px; 
+        }
+
+        /* --- STYLING KOTAK MODAL WARNING --- */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            z-index: 20;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            width: 80%; 
+            max-width: 400px;
+            border: 2px solid #D32F2F; 
+            border-radius: 10px; 
+            box-sizing: border-box;
+            position: relative;
+            text-align: left;
+        }
+
+        .modal-content h2 {
+            color: #D32F2F;
+            margin-top: 0;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="info-button" onclick="openModal()">!</button>
+        <button class="back-button" onclick="goBack()">&lt;</button> 
+    </div>
+
+    <div class="main-content">
+        
+        <h1>Genesis block</h1>
+
+        <div class="transaction-box">
+            <p>From : Reward block</p>
+            <p>To : 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</p>
+            <p>Amount : <strong>50 btc</strong></p>
+        </div>
+
+        <h1 class="force-title">Let's Force!</h1>
+
+        <div class="input-controls">
+            <div class="input-group">
+                <label>Start:</label>
+                <input type="number" id="startKey" value="1" min="1">
+            </div>
+            <div class="input-group">
+                <label>Max:</label>
+                <select id="maxKeySelect" onchange="updateMaxKey()">
+                    <option value="1000">1,000</option>
+                    <option value="1000000">1 Million</option>
+                    <option value="4294967295">2^32 - 1</option>
+                    <option value="18446744073709551615">2^64 - 1</option>
+                    <option value="115792089237316195423570985008687907852837564279074904382605163141518161494336" selected>2^256 - 1 (Max)</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="run-button" id="runBtn" onclick="toggleBruteForce()">RUN</button>
+        <div id="currentResult" class="force-box" style="display:none;">
+            <p><span class="label">Key:</span> <span id="displayKey" class="value">-</span></p>
+            <p><span class="label">Public Key:</span> <span id="displayPubKey" class="value">-</span></p>
+            <p><span class="label">Address:</span> <span id="displayAddress" class="value">-</span></p>
+            <p><span class="label">Balance:</span> <span id="displayBalance" class="balance zero">0.00000000 BTC</span></p>
+        </div>
+        
+    </div>
+
+    <div id="foundAddressesContainer" class="main-content" style="padding-top: 0;">
+        <div class="log-header">
+            <h2>Bitcoin address found :</h2>
+            <button id="showAllBtn" onclick="toggleShowAll()" style="display:none;">SHOW ALL</button>
+        </div>
+        <div id="foundAddresses">
+            </div>
+    </div>
+
+    <div id="warningModal" class="modal-backdrop">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2>⚠️ Peringatan Simulasi!</h2>
+            <p>Ini adalah **simulasi** edukasi dan demonstrasi. Semua alamat Bitcoin dan saldo adalah data acak yang tidak menggunakan *mainnet* atau *blockchain* sesungguhnya.</p>
+            <p>Penggunaan alat sejenis untuk mengakses dompet kripto secara ilegal adalah tindakan kejahatan.</p>
+        </div>
+    </div>
+
+    <script>
+        // Bitcoin utilities
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        
+        let isRunning = false;
+        let currentPrivateKey = 1; // Key integer yang sedang diperiksa (Global, persistent)
+        let maxKey = BigInt(115792089237316195423570985008687907852837564279074904382605163141518161494336);
+        let keysChecked = 0;
+        let intervalId = null;
+        let foundLog = [];
+        let isShowingAll = false;
+        
+        // Konstanta Simulasi Saldo & Adaptif Difficulty
+        const GENESIS_ADDRESS = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+        const TOTAL_SUPPLY_BTC = 21000000.00000000;
+        const ADDRESS_COUNT_SIMULATION = 4000000;
+        let PROBABILITY_BASE = 50; // Probabilitas awal 1/50
+        const PROBABILITY_INCREASE = 10; // Kenaikan probabilitas per 2 penemuan (50 -> 60 -> 70, dst.)
+        
+        // Alokasi khusus 10 Juta BTC di key 1000 sampai 1 Juta
+        const ALLOCATION_START = 1000;
+        const ALLOCATION_END = 1000000;
+        const ALLOCATION_BTC = 10000000.00000000;
+        const AVERAGE_BALANCE_SIMULATION = (TOTAL_SUPPLY_BTC - 50.0 - ALLOCATION_BTC) / ADDRESS_COUNT_SIMULATION;
+
+        const runBtn = document.getElementById('runBtn');
+
+        // Base58, hexToBytes, ripemd160, privateKeyToAddress functions (unchanged)
+        const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+        function base58Encode(buffer) {
+             if (buffer.length === 0) return '';
+            
+            let digits = [0];
+            for (let i = 0; i < buffer.length; i++) {
+                let carry = buffer[i];
+                for (let j = 0; j < digits.length; j++) {
+                    carry += digits[j] << 8;
+                    digits[j] = carry % 58;
+                    carry = Math.floor(carry / 58);
+                }
+                while (carry > 0) {
+                    digits.push(carry % 58);
+                    carry = Math.floor(carry / 58);
+                }
+            }
+            
+            let leadingZeros = 0;
+            for (let i = 0; i < buffer.length && buffer[i] === 0; i++) {
+                leadingZeros++;
+            }
+            
+            let result = '';
+            for (let i = 0; i < leadingZeros; i++) {
+                result += BASE58_ALPHABET[0];
+            }
+            for (let i = digits.length - 1; i >= 0; i--) {
+                result += BASE58_ALPHABET[digits[i]];
+            }
+            
+            return result;
+        }
+
+        function hexToBytes(hex) {
+            const bytes = [];
+            for (let i = 0; i < hex.length; i += 2) {
+                bytes.push(parseInt(hex.substr(i, 2), 16));
+            }
+            return new Uint8Array(bytes);
+        }
+
+        function ripemd160(message) {
+            return CryptoJS.RIPEMD160(CryptoJS.enc.Hex.parse(message)).toString();
+        }
+
+        function privateKeyToAddress(privateKeyHex) {
+            try {
+                privateKeyHex = privateKeyHex.padStart(64, '0');
+                const keyPair = ec.keyFromPrivate(privateKeyHex, 'hex');
+                const publicKey = keyPair.getPublic();
+                const publicKeyHex = '04' + publicKey.getX().toString('hex').padStart(64, '0') +
+                                           publicKey.getY().toString('hex').padStart(64, '0');
+
+                const sha256Hash = sha256(publicKeyHex);
+                const ripemd160Hash = ripemd160(sha256Hash);
+                const versionedHash = '00' + ripemd160Hash;
+                const checksum = sha256(sha256(versionedHash)).substring(0, 8);
+                const fullHash = versionedHash + checksum;
+                const address = base58Encode(hexToBytes(fullHash));
+                
+                return {
+                    privateKey: privateKeyHex,
+                    publicKey: publicKeyHex,
+                    address: address
+                };
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function getBalance(privateKeyInt, address) {
+            if (address === GENESIS_ADDRESS) {
+                return '50.00000000';
+            }
+
+            if (Math.random() * PROBABILITY_BASE > 1) { 
+                return '0.00000000';
+            }
+
+            let simulatedBTC = 0;
+            
+            if (privateKeyInt >= ALLOCATION_START && privateKeyInt <= ALLOCATION_END) {
+                const range = ALLOCATION_END - ALLOCATION_START + 1;
+                const avgAllocation = ALLOCATION_BTC / range;
+                simulatedBTC = Math.min((Math.random() * (avgAllocation * 3)), 20.0); 
+            } else {
+                simulatedBTC = Math.random() * AVERAGE_BALANCE_SIMULATION * 3;
+            }
+
+            if (simulatedBTC > 0.00000000) {
+                simulatedBTC = Math.max(simulatedBTC, 0.00000001); 
+                return simulatedBTC.toFixed(8);
+            }
+            return '0.00000000';
+        }
+
+        // PERBAIKAN FUNGSI RENDER LOG
+        function renderFoundAddresses() {
+            const logContainer = document.getElementById('foundAddresses');
+            const showAllBtn = document.getElementById('showAllBtn');
+            logContainer.innerHTML = '';
+            
+            if (foundLog.length === 0) {
+                showAllBtn.style.display = 'none';
+                return;
+            }
+
+            const addressesToDisplay = isShowingAll ? foundLog : foundLog.slice(-10);
+
+            // Loop terbalik agar yang terbaru muncul di atas
+            for (let i = addressesToDisplay.length - 1; i >= 0; i--) {
+                const item = addressesToDisplay[i];
+                const p = document.createElement('p');
+                // Format: (Key desimal) ( amount )
+                p.innerHTML = `<span>${item.key}</span> <span>${item.balance} BTC</span>`;
+                logContainer.appendChild(p);
+            }
+            
+            if (foundLog.length > 10) {
+                showAllBtn.style.display = 'block';
+                showAllBtn.textContent = isShowingAll ? 'SHOW LAST 10' : `SHOW ALL (${foundLog.length})`;
+            } else {
+                showAllBtn.style.display = 'none';
+            }
+        }
+
+        function updateDifficulty() {
+            // Naikkan probabilitas setiap 2 penemuan
+            const increase = Math.floor(foundLog.length / 2) * PROBABILITY_INCREASE;
+            PROBABILITY_BASE = 50 + increase;
+            // Teks probabilitas dihilangkan
+        }
+
+        function logFoundAddress(key, address, balance) {
+            foundLog.push({
+                key: key.toString(),
+                address: address,
+                balance: balance
+            });
+            updateDifficulty();
+            renderFoundAddresses();
+        }
+
+        function toggleShowAll() {
+            isShowingAll = !isShowingAll;
+            renderFoundAddresses();
+        }
+
+        function updateMaxKey() {
+            const select = document.getElementById('maxKeySelect');
+            maxKey = BigInt(select.value);
+        }
+
+        function toggleBruteForce() {
+            if (isRunning) {
+                stopBruteForce();
+            } else {
+                startBruteForce();
+            }
+        }
+
+        function addResult(privateKey, publicKey, address, balance) {
+            const currentResultBox = document.getElementById('currentResult');
+            const displayKey = document.getElementById('displayKey');
+            const displayPubKey = document.getElementById('displayPubKey');
+            const displayAddress = document.getElementById('displayAddress');
+            const displayBalance = document.getElementById('displayBalance');
+            
+            currentResultBox.style.display = 'block';
+            
+            displayKey.textContent = privateKey.toString();
+            displayPubKey.textContent = publicKey.substring(0, 50) + '...';
+            displayAddress.textContent = address;
+            displayBalance.textContent = balance + ' BTC';
+            
+            if (balance === '0.00000000') {
+                displayBalance.className = 'balance zero';
+                currentResultBox.style.border = '2px solid black';
+                currentResultBox.style.backgroundColor = 'white';
+            } else {
+                displayBalance.className = 'balance';
+                currentResultBox.style.border = '3px solid #4CAF50';
+                currentResultBox.style.backgroundColor = '#f8fff8';
+                logFoundAddress(privateKey, address, balance);
+            }
+        }
+
+        function processKey() {
+            const currentKeyBigInt = BigInt(currentPrivateKey);
+            if (!isRunning || currentKeyBigInt > maxKey) {
+                stopBruteForce();
+                return;
+            }
+
+            const privateKeyHex = currentKeyBigInt.toString(16);
+            const result = privateKeyToAddress(privateKeyHex);
+            
+            if (result) {
+                const balance = getBalance(currentPrivateKey, result.address); 
+                addResult(currentKeyBigInt, result.publicKey, result.address, balance);
+            }
+            
+            currentPrivateKey++;
+            keysChecked++;
+        }
+
+        function startBruteForce() {
+            const startKeyInput = document.getElementById('startKey');
+            
+            updateMaxKey(); 
+
+            // Baca nilai dari input 'Start' setiap kali tombol RUN ditekan
+            const startValue = parseInt(startKeyInput.value);
+            if (startValue > 0) {
+                currentPrivateKey = startValue; 
+            } else {
+                currentPrivateKey = 1;
+            }
+
+            if (BigInt(currentPrivateKey) > maxKey) {
+                alert('Maksimum key telah tercapai!');
+                return;
+            }
+            
+            isRunning = true;
+            runBtn.textContent = 'STOP'; 
+            runBtn.style.backgroundColor = '#ffebee';
+            
+            intervalId = setInterval(processKey, 50);
+        }
+
+        function stopBruteForce() {
+            isRunning = false;
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            
+            runBtn.textContent = 'RUN'; 
+            runBtn.style.backgroundColor = 'white';
+        }
+
+        // ===========================================
+        // ✅ FUNGSI UNTUK TOMBOL 'Back' (Diperbaiki untuk Navigasi URL)
+        // ===========================================
+        function goBack() {
+            if (isRunning) {
+                if (confirm('Brute force sedang berjalan. Stop dan kembali?')) {
+                    stopBruteForce();
+                    // Mengaktifkan navigasi URL ke halaman yang diminta
+                    window.location.href = 'nvme_hackkey.html'; 
+                }
+            } else {
+                // Navigasi langsung jika tidak ada proses berjalan
+                window.location.href = 'nvme_hackkey.html';
+            }
+        }
+        // ===========================================
+
+        // FUNGSI MODAL
+        const modal = document.getElementById('warningModal');
+
+        function openModal() {
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        updateMaxKey();
+    </script>
+</body>
+</html>

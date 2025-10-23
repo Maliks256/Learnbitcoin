@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Transaction Simulation</title>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent; /* Menghapus highlight biru saat di-tap */
+        }
+        body, html {
+            margin: 0; padding: 0; font-family: monospace;
+            scroll-behavior: smooth; 
+            background-color: #ffffff;
+        }
+        #s1, .full-screen-section {
+            width: 100vw; min-height: 100vh; height: auto;
+            padding-bottom: 50px; border-bottom: 5px solid rgba(0, 0, 0, 0.1);
+            box-sizing: border-box; position: relative; padding: 20px;
+        }
+        .section-title {
+            position: absolute; top: 20px; left: 20px; margin: 0;
+            font-family: 'Courier New', Courier, monospace; z-index: 10;
+        }
+        .info-button {
+            position: absolute; top: 20px; right: 85px;
+            z-index: 10;
+            padding: 5px 12px; font-size: 14px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+        .info-button:hover { transform: scale(1.05); }
+        .back-button {
+            position: absolute; top: 20px; right: 20px; z-index: 10;
+            padding: 5px 12px; font-size: 14px; background-color: #0d6efd;
+            color: white; border: 2px solid black; border-radius: 5px;
+            text-decoration: none; font-weight: bold;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+        .back-button:hover { transform: scale(1.05); }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px 30px; /* Ditambah padding horizontal */
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 800px; /* Disesuaikan agar tidak terlalu lebar */
+            position: relative;
+            border-radius: 10px;
+            font-size: 16px; /* Ukuran font di-adjust */
+            line-height: 1.6; /* Spasi antar baris */
+        }
+        .modal-content h3 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 20px;
+        }
+        .modal-content ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        .modal-content li {
+            margin-bottom: 10px;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .content-box {
+            position: relative;
+            background-color: rgba(249, 249, 249, 0.9); border: 1px solid #ccc;
+            border-radius: 8px; padding: 10px 15px; font-size: 12px;
+            max-width: 480px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-family: 'Consolas', 'Menlo', monospace; margin-bottom: 10px;
+        }
+        .chain-link {
+            font-size: 24px; color: #555; margin-left: 220px;
+            margin-top: 5px; margin-bottom: 5px;
+        }
+        #blockchain-container > .content-box:first-child,
+        #archival-container > .content-box:first-child,
+        #spv-container > .content-box:first-child {
+            margin-top: 50px;
+        }
+        .content-box { margin-top: 0; }
+        .controls { 
+            position: relative; max-width: 480px; padding: 10px 0;
+            display: none;
+            align-items: center; flex-wrap: wrap;
+        }
+        .controls button {
+            padding: 8px 15px; font-size: 14px; margin-right: 10px; margin-bottom: 10px;
+            border-radius: 5px; border: 1px solid #aaa; cursor: pointer;
+            transition: all 0.2s;
+        }
+        #add-block-btn { background-color: #28a745; color: white; }
+        #delete-block-btn { background-color: #dc3545; color: white; }
+        #send-to-archival-btn {
+            background-color: #ffc107; color: black;
+            display: none;
+        }
+        .controls button:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .controls button:disabled { background-color: #999; cursor: not-allowed; }
+        .spinner-container {
+            display: none; align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            color: #555; margin-bottom: 10px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
+            border-radius: 50%; width: 20px; height: 20px;
+            animation: spin 1s linear infinite; margin-right: 10px;
+        }
+        #mine-genesis-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 24px;
+            background-color: #0d6efd;
+            color: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s ease-in-out;
+            font-weight: bold;
+            z-index: 20;
+        }
+        #mine-genesis-btn:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.4);
+        }
+        .center-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            align-items: center;
+            z-index: 21;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+        @keyframes slideInFromLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes typewriter { from { width: 0; } to { width: 100%; } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        .slide-in { animation: slideInFromLeft 0.6s ease-out forwards; }
+        .typing-line { 
+            overflow: hidden; 
+            white-space: nowrap; 
+            display: inline-block;
+            animation: typewriter 0.05s steps(60) forwards;
+        }
+        #archival-container { padding-top: 0; }
+        #send-to-spv-btn {
+            background-color: #ffc107; color: black; padding: 8px 15px; font-size: 14px;
+            border: 2px solid black; border-radius: 5px; cursor: pointer;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s; display: none; margin-top: 10px;
+            margin-left: 0; font-weight: bold;
+        }
+        #send-to-spv-btn:hover {
+            transform: translateY(-2px); box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        #spv-container { padding-top: 0; }
+        .content-box ul { padding-left: 20px; margin: 0; list-style-type: none; }
+        .content-box li { margin-bottom: 8px; word-wrap: break-word; }
+        .content-box .field-title { color: #d9534f; font-weight: bold; }
+        .content-box .field-data { color: #0275d8; }
+        .content-box .comment { font-style: italic; color: #5cb85c; }
+    </style>
+</head>
+<body>
+
+    <section id="s1">
+        <h2 class="section-title">Full node</h2>
+        <button id="info-button" class="info-button">informasi</button>
+        <a href="nvme_listp.html" class="back-button">back</a>
+        <button id="mine-genesis-btn">Mining genesis block</button>
+        <div id="genesis-spinner" class="center-spinner spinner-container">
+             <div class="spinner" style="width: 50px; height: 50px; border-width: 6px;"></div>
+        </div>
+        <div id="blockchain-container"></div>
+        <div class="controls">
+            <button id="add-block-btn">Add Block</button>
+            <button id="delete-block-btn">Delete Block</button>
+            <button id="send-to-archival-btn">Send to Archival</button>
+            <div id="spinner-container" class="spinner-container">
+                <div class="spinner"></div>
+                <span id="spinner-text">Mining...</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="s2" class="full-screen-section">
+        <h2 class="section-title">archival node</h2>
+        <div id="archival-container"></div>
+        <button id="send-to-spv-btn">Send to SPV</button>
+    </section>
+
+    <section id="s3" class="full-screen-section">
+        <h2 class="section-title">spv node</h2>
+        <div id="spv-container"></div>
+    </section>
+
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Tipe :</h2>
+
+            <h3>Full Node</h3>
+            <ul>
+                <li>Menjalankan software seperti <strong>Bitcoin Core</strong> dan menyimpan seluruh salinan blockchain.</li>
+                <li>Memvalidasi semua transaksi dan blok secara independen tanpa perlu percaya pihak lain.</li>
+                <li>Sangat aman, namun butuh ruang penyimpanan besar (±500 GB dan terus bertambah).</li>
+                <li>Ideal untuk pengembang, penambang, atau bisnis yang membutuhkan tingkat keamanan tertinggi.</li>
+            </ul>
+
+            <h3>Archival Node</h3>
+            <ul>
+                <li>Jenis Full Node yang menyimpan seluruh riwayat blockchain dari blok pertama (genesis).</li>
+                <li>Membutuhkan ruang penyimpanan yang lebih besar dari Full Node biasa (>500 GB).</li>
+                <li>Digunakan untuk keperluan analisis data, forensik, dan menjalankan aplikasi seperti blockchain explorer.</li>
+            </ul>
+
+            <h3>SPV Node</h3>
+            <ul>
+                <li>Node ringan yang hanya menyimpan <strong>header blok</strong> (±80 byte per blok), bukan seluruh transaksi.</li>
+                <li>Memverifikasi transaksi dengan meminta bukti dari Full Node menggunakan <strong>Merkle Root</strong>.</li>
+                <li><strong>Merkle Root</strong> adalah hash tunggal dari semua transaksi dalam blok, dibentuk via Merkle Tree, yang memungkinkan verifikasi efisien tanpa mengunduh seluruh blok.</li>
+                <li>Sangat hemat ruang penyimpanan, cocok untuk perangkat mobile, namun memiliki tingkat keamanan lebih rendah karena bergantung pada Full Node.</li>
+            </ul>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Definisi Class ---
+        class Block {
+            constructor(height, previousHash, timestamp, transactions, nonce = 0, hash = '') {
+                this.height = height; 
+                this.previousHash = previousHash; 
+                this.timestamp = timestamp;
+                this.transactions = transactions; 
+                this.nonce = nonce; 
+                this.hash = hash;
+            }
+            toHashString() { 
+                return this.height + this.previousHash + this.timestamp + JSON.stringify(this.transactions) + this.nonce; 
+            }
+            getFormattedTimestamp() {
+                if (this.height === 0) return this.timestamp;
+                const date = new Date(this.timestamp);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+            }
+        }
+        
+        class Blockchain {
+            constructor() {
+                this.chain = [];
+                this.difficulty = 2;
+            }
+            getLatestBlock() { 
+                return this.chain.length > 0 ? this.chain[this.chain.length - 1] : null; 
+            }
+            async calculateHash(str) {
+                const textAsBuffer = new TextEncoder().encode(str);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            mineBlock(newBlock) {
+                return new Promise(async (resolve) => {
+                    const target = '0'.repeat(this.difficulty);
+                    while(true) {
+                        const hash = await this.calculateHash(newBlock.toHashString());
+                        if (hash.startsWith(target)) {
+                            newBlock.hash = hash;
+                            resolve();
+                            break;
+                        }
+                        newBlock.nonce++;
+                    }
+                });
+            }
+            async addBlock(newBlock) {
+                const latestBlock = this.getLatestBlock();
+                if (!latestBlock) {
+                    throw new Error("Genesis block harus dibuat terlebih dahulu.");
+                }
+                newBlock.previousHash = latestBlock.hash;
+                await this.mineBlock(newBlock);
+                this.chain.push(newBlock);
+            }
+        }
+
+        // --- Logika DOM dan Event ---
+        const blockchain = new Blockchain();
+        const mineGenesisBtn = document.getElementById('mine-genesis-btn');
+        const genesisSpinner = document.getElementById('genesis-spinner');
+        const controlsContainer = document.querySelector('.controls');
+        const addBtn = document.getElementById('add-block-btn');
+        const deleteBtn = document.getElementById('delete-block-btn');
+        const sendBtn = document.getElementById('send-to-archival-btn');
+        const sendSpvBtn = document.getElementById('send-to-spv-btn');
+        const mainContainer = document.getElementById('blockchain-container');
+        const archivalContainer = document.getElementById('archival-container');
+        const spvContainer = document.getElementById('spv-container');
+        const spinnerContainer = document.getElementById('spinner-container');
+        
+        const generateBitcoinAddress = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let address = '1';
+            for (let i = 0; i < 33; i++) {
+                address += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return address;
+        };
+
+        const createTransactions = () => {
+            const transactions = ['Coinbase TX: 50 BTC -> Miner'];
+            for (let i = 0; i < 3; i++) {
+                const fromAddr = generateBitcoinAddress();
+                const toAddr = generateBitcoinAddress();
+                const amount = (Math.random() * 2.5).toFixed(6);
+                transactions.push(`(${fromAddr.substring(0, 8)}...) to (${toAddr.substring(0, 8)}...) amount: ${amount} BTC`);
+            }
+            return transactions;
+        };
+        
+        async function calculateMerkleRoot(transactions) {
+            let hashes = [];
+            for (let tx of transactions) {
+                hashes.push(await blockchain.calculateHash(tx));
+            }
+            while (hashes.length > 1) {
+                let newHashes = [];
+                for (let i = 0; i < hashes.length; i += 2) {
+                    if (i + 1 < hashes.length) {
+                        newHashes.push(await blockchain.calculateHash(hashes[i] + hashes[i + 1]));
+                    } else {
+                        newHashes.push(hashes[i]);
+                    }
+                }
+                hashes = newHashes;
+            }
+            return hashes[0];
+        }
+
+        async function createSPVBlockElement(block) {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'content-box';
+            blockDiv.id = `spv-block-${block.height}`;
+            const merkleRoot = await calculateMerkleRoot(block.transactions);
+            blockDiv.innerHTML = `
+                <p class="comment">// SPV Block #${block.height} //</p>
+                <h4>Block Header:</h4>
+                <ul>
+                    <li><span class="field-title">Timestamp:</span> <span class="field-data">${block.getFormattedTimestamp()}</span></li>
+                    <li><span class="field-title">Previous Hash:</span> <span class="field-data">${block.previousHash.substring(0,20)}...</span></li>
+                    <li><span class="field-title">Merkle Root:</span> <span class="field-data">${merkleRoot.substring(0,20)}...</span></li>
+                    <li><span class="field-title">Nonce:</span> <span class="field-data">${block.nonce}</span></li>
+                </ul>
+                <hr style="border-color: #eee; border-style: dashed;">
+                <ul><li><span class="field-title">Block Hash:</span> <span class="field-data">${block.hash.substring(0,20)}...</span></li></ul>
+            `;
+            return blockDiv;
+        }
+
+        const createBlockElement = (block) => {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'content-box';
+            blockDiv.id = `block-${block.height}`;
+            const transactionsHTML = `<ul>${block.transactions.map(tx => `<li><span class="field-data">${tx}</span></li>`).join('')}</ul>`;
+            blockDiv.innerHTML = `
+                <p class="comment">// Block #${block.height} //</p>
+                <h4>Block Header:</h4>
+                <ul>
+                    <li><span class="field-title">Timestamp:</span> <span class="field-data">${block.getFormattedTimestamp()}</span></li>
+                    <li><span class="field-title">Previous Hash:</span> <span class="field-data">${block.previousHash.substring(0,20)}...</span></li>
+                    <li><span class="field-title">Nonce:</span> <span class="field-data">${block.nonce}</span></li>
+                </ul>
+                <h4>Transaksi:</h4>
+                ${transactionsHTML}
+                <hr style="border-color: #eee; border-style: dashed;">
+                <ul><li><span class="field-title">Block Hash:</span> <span class="field-data">${block.hash.substring(0,20)}...</span></li></ul>
+            `;
+            setTimeout(() => {
+                const lines = blockDiv.querySelectorAll('li, p, h4');
+                lines.forEach((line, idx) => {
+                    line.style.opacity = '0';
+                    setTimeout(() => {
+                        line.style.opacity = '1';
+                        line.classList.add('typing-line');
+                    }, idx * 30);
+                });
+            }, 10);
+            return blockDiv;
+        };
+
+        const renderChain = (container, chain, animate = false) => {
+            container.innerHTML = '';
+            chain.forEach((block, index) => {
+                if (index > 0) {
+                    const chainLink = document.createElement('div');
+                    chainLink.className = 'chain-link';
+                    chainLink.innerHTML = '↓';
+                    container.appendChild(chainLink);
+                }
+                const blockEl = createBlockElement(block);
+                if (animate) {
+                    blockEl.classList.add('slide-in');
+                    blockEl.style.animationDelay = `${index * 0.1}s`;
+                }
+                container.appendChild(blockEl);
+            });
+        };
+
+        async function renderSPVChain(container, chain, animate = false) {
+            container.innerHTML = '';
+            for (let index = 0; index < chain.length; index++) {
+                const block = chain[index];
+                if (index > 0) {
+                    const chainLink = document.createElement('div');
+                    chainLink.className = 'chain-link';
+                    chainLink.innerHTML = '↓';
+                    container.appendChild(chainLink);
+                }
+                const spvBlock = await createSPVBlockElement(block);
+                if (animate) {
+                    spvBlock.classList.add('slide-in');
+                    spvBlock.style.animationDelay = `${index * 0.1}s`;
+                }
+                container.appendChild(spvBlock);
+            }
+        }
+        
+        // --- Event Listeners ---
+        
+        mineGenesisBtn.addEventListener('click', async () => {
+            mineGenesisBtn.style.display = 'none';
+            genesisSpinner.style.display = 'flex';
+
+            const genesisBlock = new Block(
+                0, '0'.repeat(64), '2009-01-03 18:15:05 UTC',
+                [
+                    'from coinbase to: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+                    '"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"'
+                ],
+                0
+            );
+
+            await blockchain.mineBlock(genesisBlock);
+            blockchain.chain.push(genesisBlock);
+
+            setTimeout(async () => {
+                genesisSpinner.style.display = 'none';
+                
+                renderChain(mainContainer, blockchain.chain);
+                renderChain(archivalContainer, blockchain.chain);
+                await renderSPVChain(spvContainer, blockchain.chain);
+
+                controlsContainer.style.display = 'flex';
+                deleteBtn.disabled = false;
+                addBtn.disabled = false;
+                
+                sendBtn.style.display = 'inline-block';
+                sendBtn.disabled = false;
+            }, 1000);
+        });
+
+        addBtn.addEventListener('click', async () => {
+            addBtn.disabled = true; 
+            deleteBtn.disabled = true; 
+            sendBtn.disabled = true;
+            spinnerContainer.style.display = 'flex';
+            
+            const startTime = Date.now();
+            
+            const newBlock = new Block(
+                blockchain.getLatestBlock().height + 1, 
+                '',
+                new Date().toISOString(), 
+                createTransactions()
+            );
+            await blockchain.addBlock(newBlock);
+
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, 1000 - elapsedTime);
+            
+            await new Promise(resolve => setTimeout(resolve, remainingTime));
+
+            spinnerContainer.style.display = 'none';
+            renderChain(mainContainer, blockchain.chain);
+
+            addBtn.disabled = false; 
+            deleteBtn.disabled = false;
+            
+            sendBtn.disabled = false;
+            if (blockchain.chain.length > 0) {
+                sendBtn.style.display = 'inline-block';
+            }
+        });
+        
+        deleteBtn.addEventListener('click', () => {
+            if (blockchain.chain.length > 0) {
+                const deletedHeight = blockchain.chain[blockchain.chain.length - 1].height;
+                blockchain.chain.pop();
+
+                if (blockchain.chain.length === 0) {
+                    sendBtn.style.display = 'none';
+                    sendSpvBtn.style.display = 'none';
+                }
+                
+                spinnerContainer.style.display = 'flex';
+                setTimeout(() => {
+                    if (blockchain.chain.length === 0) {
+                        mainContainer.innerHTML = '';
+                        archivalContainer.innerHTML = '';
+                        spvContainer.innerHTML = '';
+                        controlsContainer.style.display = 'none';
+                        mineGenesisBtn.style.display = 'block';
+                    } else {
+                        renderChain(mainContainer, blockchain.chain);
+                        renderChain(archivalContainer, blockchain.chain);
+                        const spvBlockToRemove = document.getElementById(`spv-block-${deletedHeight}`);
+                        if (spvBlockToRemove) {
+                            const prevLink = spvBlockToRemove.previousElementSibling;
+                            if(prevLink && prevLink.classList.contains('chain-link')) {
+                                prevLink.remove();
+                            }
+                            spvBlockToRemove.remove();
+                        }
+                    }
+                    spinnerContainer.style.display = 'none';
+                }, 500);
+            }
+        });
+
+        sendBtn.addEventListener('click', () => {
+            renderChain(archivalContainer, blockchain.chain, true);
+            if (blockchain.chain.length > 0) {
+                sendSpvBtn.style.display = 'inline-block';
+            }
+            setTimeout(() => {
+                document.getElementById('s2').scrollIntoView({ behavior: 'smooth' });
+            }, 200);
+        });
+
+        sendSpvBtn.addEventListener('click', async () => {
+            await renderSPVChain(spvContainer, blockchain.chain, true);
+            setTimeout(() => {
+                document.getElementById('s3').scrollIntoView({ behavior: 'smooth' });
+            }, 200);
+        });
+
+        // --- SCRIPT UNTUK MODAL ---
+        const infoModal = document.getElementById('info-modal');
+        const infoBtn = document.getElementById('info-button');
+        const closeBtn = document.querySelector('.close-button');
+
+        infoBtn.onclick = function() {
+            infoModal.style.display = 'block';
+        }
+
+        closeBtn.onclick = function() {
+            infoModal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == infoModal) {
+                infoModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

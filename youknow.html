@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Animation + Toggle Button + List</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      overflow-x: hidden;
+    }
+
+    section {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #section1 {
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #section2 {
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: normal;
+      opacity: 0;
+      transform: translateX(100px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      margin: 0 0 20px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .fade-in-right {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .fade-out-left {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+
+    /* cursor kedap kedip */
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      margin-right: 4px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* tombol back bulat */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid #000;
+      background-color: #fff;
+      color: #000;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+      z-index: 1000;
+    }
+
+    .back-btn:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    /* tombol toggle pojok kiri atas */
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: monospace;
+      transition: background 0.3s, color 0.3s;
+      z-index: 1000;
+    }
+
+    .mode-smallc {
+      background-color: #ccc; /* abu */
+      color: #000;
+    }
+
+    .mode-details {
+      background-color: #000;
+      color: #fff;
+    }
+
+    /* list style */
+    .fact-list {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .fact-item {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fact-item.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fact-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .fact-desc {
+      font-size: 14px;
+      line-height: 1.4;
+      display: none;
+    }
+
+    body.details-mode .fact-desc {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <section id="section1">
+    <h1 class="fade-text"><span class="cursor">_</span>You know this ?</h1>
+  </section>
+
+  <section id="section2">
+    <h1 class="fade-text">>/<</h1>
+       <div class="fact-list">
+     <div class="fact-item">
+      <div class="fact-title"> Address bitcoin satoshi nakamoto</div>
+        <div class="fact-desc"> 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa  </div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title"> Max desimal private key bitcoin </div>
+        <div class="fact-desc"> 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,935 </div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title"> max nonce mining </div>
+        <div class="fact-desc">  4.294.967.295</div>
+      </div>
+    <div class="fact-list">
+      <div class="fact-item">
+        <div class="fact-title">Genesis block reward unspendable</div>
+        <div class="fact-desc">Genesis block reward Bitcoin, yaitu 50 BTC yang dibuat dalam blok pertama oleh Satoshi Nakamoto, tidak dapat di-spend meskipun seseorang memegang kunci pribadi (private key). Ini karena transaksi dalam genesis block dirancang tanpa output yang valid untuk digunakan (tidak ada scriptSig yang memungkinkan pengeluaran). Selain itu, kode Bitcoin Core secara eksplisit memblokir penggunaan output dari genesis block, sehingga dana tersebut terkunci secara permanen di blockchain.</div>
+      </div>
+      <div class="fact-item">
+        <div class="fact-title">Hanya 20.999.950 BTC yang Dapat di belanjakan</div>
+        <div class="fact-desc">Dompet Bitcoin yang kunci pribadinya hilang mungkin dapat diretas pada 100-200 tahun mendatang menggunakan komputasi kuantum. Namun, reward 50 BTC dari genesis block tetap tidak dapat digunakan karena desain transaksi yang tidak menyediakan output valid dan pembatasan dalam kode Bitcoin Core, sehingga dana tersebut terkunci secara permanen di blockchain.</div>
+      </div>
+      <div class="fact-item">
+        <div class="fact-title">Satoshi tidak menyimpan 1 juta bitcoin dalam 1 alamat</div>
+        <div class="fact-desc"> Satoshi Nakamoto, pencipta Bitcoin, tidak menyimpan semua reward mining-nya dalam satu alamat, melainkan menyebarkannya ke banyak alamat berbeda, yang jumlahnya diperkirakan mencapai puluhan ribu. Hal ini terlihat dari pola mining awal Bitcoin (2009-2010), di mana blok-blok yang diduga ditambang oleh Satoshi (seperti genesis block dengan alamat 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa) menunjukkan bahwa setiap reward blok, biasanya 50 BTC, dikirim ke alamat baru. Alasan di balik ini kemungkinan untuk meningkatkan privasi dan keamanan, karena menyimpan semua dana dalam satu alamat akan memudahkan pelacakan dan meningkatkan risiko peretasan. Total kekayaan Satoshi diperkirakan sekitar 1 juta BTC, tersebar di berbagai alamat yang hingga kini sebagian besar tetap tidak tersentuh.</div>
+      </div>
+      
+      <div class="fact-item">
+      	<div class="fact-title"> Difficulty adjustment</div>
+        <div class="fact-desc"> Difficulty adjustment di Bitcoin terjadi setiap 2016 blok, kira-kira setiap dua minggu (dihitung berdasarkan rata-rata waktu 10 menit per blok). Ini diatur oleh protokol untuk memastikan waktu pembuatan blok tetap stabil meskipun hashrate jaringan naik atau turun. </div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title">Matematika di Balik Penyesuaian Difficulty Bitcoin </div>
+        <div class="fact-desc"> untuk menjaga waktu rata-rata pembuatan blok tetap 10 menit, dengan rumus: New Difficulty = Old Difficulty × (Actual Time for 2016 Blocks / 20,160 minutes). Protokol mengukur waktu aktual penambangan 2016 blok terakhir berdasarkan timestamp blockchain, lalu membandingkannya dengan target 20.160 menit. Jika waktu aktual lebih cepat (hashrate naik), difficulty naik; jika lebih lambat (hashrate turun), difficulty turun, dengan batas penyesuaian 4x naik atau 0.25x turun untuk stabilitas. Proses ini menyesuaikan target hash agar penambangan tetap konsisten, menjaga integritas jaringan Bitcoin secara otomatis. </div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title"> bitcoin mempunyai 2 metode signature</div>
+        <div class="fact-desc"> Bitcoin awalnya pakai ECDSA untuk tanda tangan transaksi, tapi upgrade Taproot (November 2021) memperkenalkan Schnorr Signatures. Schnorr lebih efisien, mendukung agregasi tanda tangan untuk multisig, meningkatkan privasi, dan menghemat ruang blockchain. Taproot juga gunakan MAST untuk skrip kompleks yang lebih ringkas, membuat transaksi lebih privat dan skalabel. </div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title"> bitcoin mempunyai 5 tipe address </div>
+        <div class="fact-desc">  Bitcoin memiliki lima tipe address utama: P2PKH (dimulai dengan "1", format legacy untuk hash public key), P2SH (dimulai dengan "3", mendukung skrip kompleks seperti multisig), P2WPKH dan P2WSH (keduanya dimulai dengan "bc1", bagian dari SegWit untuk efisiensi dan biaya rendah), serta P2TR (dimulai dengan "bc1p", diperkenalkan via Taproot 2021 untuk privasi dan skrip kompleks dengan Schnorr Signatures). Setiap tipe mencerminkan evolusi teknis Bitcoin, meningkatkan efisiensi, privasi, dan fleksibilitas transaksi di blockchain.</div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title"> Raw data tx bitcoin</div>
+        <div class="fact-desc"> Struktur JSON transaksi Bitcoin, hasil parsing dari raw data biner, mencakup elemen kunci: "txid" (hash transaksi unik), "version" (versi protokol, biasanya 1 atau 2), "locktime" (waktu transaksi valid), "vin" (array input dengan "txid", "vout", "scriptSig" untuk autentikasi, dan "sequence" untuk pengaturan waktu), serta "vout" (array output dengan "value" dalam BTC dan "scriptPubKey" untuk alamat tujuan). Contoh: {"txid": "e778e876...", "version": 1, "locktime": 0, "vin": [{"txid": "prev_txid", "vout": 0, "scriptSig": {"asm": "...", "hex": "..."}, "sequence": 4294967295}], "vout": [{"value": 0.1, "scriptPubKey": {"asm": "OP_DUP...", "hex": "76a914..."}}]}. Informasi pengirim dan penerima tersirat dari "scriptSig" dan "scriptPubKey". </div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title">Public key mempunyai 2 koordinat</div>
+        <div class="fact-desc">  Public key Bitcoin adalah titik pada kurva eliptik secp256k1 yang direpresentasikan oleh dua koordinat: x dan y. Misalnya:
+<hr>
+x = 55066263022277343669578718895168534326250603453777594175500187360389116729240
+y = 32670510020758816978083085130507043184471273380659243275938904335757337482424</div>
+      </div>
+      <div class="fact-item">
+      	<div class="fact-title">Satoshi Nakamoto Pubkey </div>
+        <div class="fact-desc"> 04 678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f </div>
+      </div>
+    </div>
+  </section>
+
+  <a href="home.html" class="back-btn">&gt;</a>
+
+  <button id="toggleBtn" class="toggle-btn mode-smallc">Smallc</button>
+
+  <script>
+    const sections = document.querySelectorAll("section");
+    const toggleBtn = document.getElementById("toggleBtn");
+    const factItems = document.querySelectorAll(".fact-item");
+
+    // fade logic untuk teks section
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          const text = entry.target.querySelector(".fade-text");
+          if (text) {
+            if (entry.isIntersecting) {
+              text.classList.add("fade-in-right");
+              text.classList.remove("fade-out-left");
+            } else {
+              text.classList.add("fade-out-left");
+              text.classList.remove("fade-in-right");
+            }
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+
+    sections.forEach(section => observer.observe(section));
+
+    // toggle mode button
+    toggleBtn.addEventListener("click", () => {
+      if (toggleBtn.classList.contains("mode-smallc")) {
+        toggleBtn.classList.remove("mode-smallc");
+        toggleBtn.classList.add("mode-details");
+        toggleBtn.textContent = "Details";
+        document.body.classList.add("details-mode");
+      } else {
+        toggleBtn.classList.remove("mode-details");
+        toggleBtn.classList.add("mode-smallc");
+        toggleBtn.textContent = "Smallc";
+        document.body.classList.remove("details-mode");
+      }
+    });
+
+    // observer untuk animasi list
+    const factObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    factItems.forEach(item => factObserver.observe(item));
+  </script>
+</body>
+</html>

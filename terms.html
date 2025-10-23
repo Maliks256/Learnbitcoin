@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Terms</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #fff;
+            margin: 20px;
+            overflow: hidden; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .custom-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .custom-list li:before {
+            content: "|";
+            margin-right: 10px;
+        }
+
+        .custom-list li.indented {
+            padding-left: 40px;
+        }
+        .custom-list li.indented:before {
+            content: "|";
+            margin-right: 10px;
+            margin-left: -10px;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .list-container {
+            position: relative;
+        }
+
+        .separator {
+            margin: 20px 0 10px 0;
+            border: none;
+            height: 1px;
+            background-color: #ccc;
+        }
+
+        .move-up-btn {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border: 1px solid black;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            font-size: 10px;
+            position: absolute;
+            bottom: -10px;
+            right: 0;
+            overflow: hidden;
+            will-change: transform;
+        }
+
+        .move-up-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('move.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 50%;
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: opacity, transform;
+        }
+
+        .btn-image.fade-out {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 90vw;
+            height: 90vh;
+            max-width: 800px;
+            max-height: 600px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1000;
+            will-change: transform, opacity;
+        }
+
+        .modal.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            margin-right: 30px;
+        }
+
+        .scrollable-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .scrollable-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            line-height: 1;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* Prevent scroll during modal */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* Page indicators (dots) */
+        .page-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid #000;
+            box-shadow: 1.5px 1.5px 0 rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: FAF9F6; /* Red for inactive */
+        }
+
+        .page-dot.active {
+            background-color: #D3D3D3; /* Green for active */
+        }
+
+        .page-dot:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bitcoin Terms</h1>
+
+    <div class="container">
+        <div class="list-container">
+            <ul class="custom-list" id="short-list"></ul>
+            <button class="move-up-btn" id="moveUpBtn" onclick="openModal()">
+                <div class="btn-image" id="btnImage"></div>
+            </button>
+        </div>
+        <hr class="separator">
+    </div>
+
+    <h1>Bitcoin Terms F</h1>
+
+    <div class="container">
+        <div class="list-container">
+            <ul class="custom-list" id="short-list-f"></ul>
+            <button class="move-up-btn" id="moveUpBtnF" onclick="openModalF()">
+                <div class="btn-image" id="btnImageF"></div>
+            </button>
+        </div>
+        <hr class="separator">
+    </div>
+
+    <div id="modalBackdrop" class="modal-backdrop" onclick="closeModal(); closeModalF();"></div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>List Terms</h2>
+            <div class="scrollable-list">
+                <ul class="custom-list" id="full-list"></ul>
+            </div>
+            <div id="credit-text" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+                Sc : grok ai
+            </div>
+        </div>
+    </div>
+
+    <div id="myModalF" class="modal">
+        <!-- Page 1 -->
+        <div class="modal-content" id="modalPage1">
+            <span class="close-btn" onclick="closeModalF()">&times;</span>
+            <h2></h2>
+            <div class="scrollable-list">
+                <ul class="custom-list" id="full-list-f"></ul>
+            </div>
+            <div id="credit-text-f" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+                Sc : grok ai
+            </div>
+            <!-- Page indicators -->
+            <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                <span class="page-dot active" data-page="1"></span>
+                <span class="page-dot" data-page="2"></span>
+                <span class="page-dot" data-page="3"></span>
+                <span class="page-dot" data-page="4"></span>
+                <span class="page-dot" data-page="5"></span>
+                <span class="page-dot" data-page="6"></span>
+                <span class="page-dot" data-page="7"></span>
+            </div>
+        </div>
+        
+        <!-- Page 2 -->
+        <div class="modal-content" id="modalPage2" style="display: none;">
+            <span class="close-btn" onclick="closeModalF()">&times;</span>
+            <h2></h2>
+            <div class="scrollable-list" id="scrollableListPage2">
+                <div id="full-list-f-page2"></div>
+            </div>
+            <div id="credit-text-f-page2" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+                Sc : grok ai
+            </div>
+            <!-- Page indicators -->
+            <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                <span class="page-dot" data-page="1"></span>
+                <span class="page-dot active" data-page="2"></span>
+                <span class="page-dot" data-page="3"></span>
+                <span class="page-dot" data-page="4"></span>
+                <span class="page-dot" data-page="5"></span>
+                <span class="page-dot" data-page="6"></span>
+                <span class="page-dot" data-page="7"></span>
+            </div>
+        </div>
+
+        <!-- Page 3 -->
+        <div class="modal-content" id="modalPage3" style="display: none;">
+            <span class="close-btn" onclick="closeModalF()">&times;</span>
+            <h2></h2>
+            <div class="scrollable-list" id="scrollableListPage3">
+                <div id="full-list-f-page3"></div>
+            </div>
+            <div id="credit-text-f-page3" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+                Sc : grok ai
+            </div>
+            <!-- Page indicators -->
+            <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                <span class="page-dot" data-page="1"></span>
+                <span class="page-dot" data-page="2"></span>
+                <span class="page-dot active" data-page="3"></span>
+                <span class="page-dot" data-page="4"></span>
+                <span class="page-dot" data-page="5"></span>
+                <span class="page-dot" data-page="6"></span>
+                <span class="page-dot" data-page="7"></span>
+            </div>
+        </div>
+
+        <!-- Page 4 -->
+        <div class="modal-content" id="modalPage4" style="display: none;">
+            <span class="close-btn" onclick="closeModalF()">&times;</span>
+            <h2></h2>
+            <div class="scrollable-list" id="scrollableListPage4">
+                <div id="full-list-f-page4"></div>
+            </div>
+            <div id="credit-text-f-page4" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+                Sc : grok ai
+            </div>
+            <!-- Page indicators -->
+            <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                <span class="page-dot" data-page="1"></span>
+                <span class="page-dot" data-page="2"></span>
+                <span class="page-dot" data-page="3"></span>
+                <span class="page-dot active" data-page="4"></span>
+                <span class="page-dot" data-page="5"></span>
+                <span class="page-dot" data-page="6"></span>
+                <span class="page-dot" data-page="7"></span>
+            </div>
+        </div>
+
+        <!-- Page 5 -->
+        <div class="modal-content" id="modalPage5" style="display: none;">
+            <span class="close-btn" onclick="closeModalF()">&times;</span>
+            <h2></h2>
+            <div class="scrollable-list" id="scrollableListPage5">
+                <div id="full-list-f-page5"></div>
+            </div>
+            <div id="credit-text-f-page5" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+                Sc : grok ai
+            </div>
+            <!-- Page indicators -->
+            <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                <span class="page-dot" data-page="1"></span>
+                <span class="page-dot" data-page="2"></span>
+                <span class="page-dot" data-page="3"></span>
+                <span class="page-dot" data-page="4"></span>
+                <span class="page-dot active" data-page="5"></span>
+                <span class="page-dot" data-page="6"></span>
+                <span class="page-dot" data-page="7"></span>
+            </div>
+        </div>
+
+        <div class="modal-content" id="modalPage6" style="display: none;">
+    <span class="close-btn" onclick="closeModalF()">&times;</span>
+    <h2>Ekonomi/Keuangan
+    <hr>
+</h2>
+    <div class="scrollable-list" id="scrollableListPage6">
+        <div id="full-list-f-page6"></div>
+    </div>
+    <div id="credit-text-f-page6" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+        Sc : grok ai
+    </div>
+    <!-- Page indicators -->
+    <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+        <span class="page-dot" data-page="1"></span>
+        <span class="page-dot" data-page="2"></span>
+        <span class="page-dot" data-page="3"></span>
+        <span class="page-dot" data-page="4"></span>
+        <span class="page-dot" data-page="5"></span>
+        <span class="page-dot active" data-page="6"></span>
+        <span class="page-dot" data-page="7"></span>
+    </div>
+</div>
+
+        <!-- Page 7 -->
+<div class="modal-content" id="modalPage7" style="display: none;">
+    <span class="close-btn" onclick="closeModalF()">&times;</span>
+    <h2>Jaringan 
+<hr> </h2>
+    <div class="scrollable-list" id="scrollableListPage7">
+        <div id="full-list-f-page7"></div>
+    </div>
+    <div id="credit-text-f-page7" style="text-align: center; margin-top: 10px; padding: 10px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; opacity: 0; transition: opacity 0.3s ease;">
+        Sc : grok ai
+    </div>
+    <!-- Page indicators -->
+    <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+        <span class="page-dot" data-page="1"></span>
+        <span class="page-dot" data-page="2"></span>
+        <span class="page-dot" data-page="3"></span>
+        <span class="page-dot" data-page="4"></span>
+        <span class="page-dot" data-page="5"></span>
+        <span class="page-dot" data-page="6"></span>
+        <span class="page-dot active" data-page="7"></span>
+    </div>
+</div>
+    </div>
+
+    <script>
+        const shortList = document.getElementById('short-list');
+        const fullList = document.getElementById('full-list');
+        const modal = document.getElementById('myModal');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const moveUpBtn = document.getElementById('moveUpBtn');
+        const btnImage = document.getElementById('btnImage');
+        const creditText = document.getElementById('credit-text');
+        const scrollableList = document.querySelector('#myModal .scrollable-list');
+
+        const shortListF = document.getElementById('short-list-f');
+        const fullListF = document.getElementById('full-list-f');
+        const fullListFPage2 = document.getElementById('full-list-f-page2');
+        const fullListFPage3 = document.getElementById('full-list-f-page3');
+        const fullListFPage4 = document.getElementById('full-list-f-page4');
+        const fullListFPage5 = document.getElementById('full-list-f-page5');
+        const fullListFPage6 = document.getElementById('full-list-f-page6');
+        const fullListFPage7 = document.getElementById('full-list-f-page7');
+        const modalF = document.getElementById('myModalF');
+        const moveUpBtnF = document.getElementById('moveUpBtnF');
+        const btnImageF = document.getElementById('btnImageF');
+        const creditTextF = document.getElementById('credit-text-f');
+        const creditTextFPage2 = document.getElementById('credit-text-f-page2');
+        const creditTextFPage3 = document.getElementById('credit-text-f-page3');
+        const creditTextFPage4 = document.getElementById('credit-text-f-page4');
+        const creditTextFPage5 = document.getElementById('credit-text-f-page5');
+        const creditTextFPage6 = document.getElementById('credit-text-f-page6');
+        const creditTextFPage7 = document.getElementById('credit-text-f-page7');
+        const scrollableListF = document.querySelector('#myModalF .scrollable-list');
+        const scrollableListPage2 = document.getElementById('scrollableListPage2');
+        const scrollableListPage3 = document.getElementById('scrollableListPage3');
+        const scrollableListPage4 = document.getElementById('scrollableListPage4');
+        const scrollableListPage5 = document.getElementById('scrollableListPage5');
+        const scrollableListPage6 = document.getElementById('scrollableListPage6');
+        const scrollableListPage7 = document.getElementById('scrollableListPage7');
+
+        let isModalOpen = false;
+        let isModalFOpen = false;
+        let currentModalPage = 1;
+
+        const bitcoinTerms = {
+            "Umum": [
+                "Bitcoin", "Blockchain", "Block", "Transaction", "Wallet", 
+                "Private Key", "Public Key", "Address", "Node", "Consensus", 
+                "Cryptocurrency", "Decentralized", "Ledger", "Hash", "Digital Signature", 
+                "Satoshi", "Peer-to-Peer (P2P)", "Genesis Block", "Fork", "Whitepaper"
+            ],
+            "Teknis": [
+                "SHA-256", "Merkle Tree", "Merkle Root", "Nonce", "Difficulty", 
+                "Block Header", "Timestamp", "Elliptic Curve Cryptography (ECC)", "Hash Function", "Block Size", 
+                "SegWit (Segregated Witness)", "BIP (Bitcoin Improvement Proposal)", "Soft Fork", "Hard Fork", "Chainstate", 
+                "Bloom Filter", "SPV (Simplified Payment Verification)", "Difficulty Adjustment", "Block Height", "Transaction ID (TXID)", 
+                "Witness Data", "Script", "OP_CODE", "Pubkey Script", "SigScript", 
+                "Locktime", "nLockTime", "Replace-by-Fee (RBF)", "Child-Pays-for-Parent (CPFP)", "Taproot", 
+                "Schnorr Signature", "Bech32", "Base58", "Double-Spending", "Orphan Block", 
+                "Stale Block", "Fork Choice Rule", "Block Propagation", "Compact Blocks", "Transaction Malleability",
+                "MAST (Merkelized Abstract Syntax Tree)", "OP_RETURN", "Witness Version", "CompactSize (varint encoding)", "ScriptPubKey",
+                "ScriptSig", "BIP32 (HD Wallets)", "BIP39 (Mnemonic Seed Phrase)", "SECP256K1", "Ripemd-160"
+            ],
+            "Penambangan (Mining)": [
+                "Miner", "Mining", "Hashrate", "Proof-of-Work (PoW)", "Mining Pool", 
+                "ASIC (Application-Specific Integrated Circuit)", "Block Reward", "Halving", "Difficulty Target", "Mining Difficulty", 
+                "Nonce Range", "Coinbase Transaction", "Mining Rig", "Hash Power", "Solo Mining", 
+                "Pool Mining", "Stratum Protocol", "Share (Mining Share)", "PPLNS (Pay Per Last N Shares)", "PPS (Pay Per Share)", 
+                "Merged Mining", "Mining Farm", "Block Template", "Getwork", "Getblocktemplate", 
+                "Mining Software", "Overclocking", "Underclocking", "Hashrate Distribution", "Mining Centralization",
+                "Mining Difficulty Adjustment Algorithm (DAA)", "Block Time", "Empty Block", "Mining Reward Variance"
+            ],
+            "Transaksi": [
+                "UTXO (Unspent Transaction Output)", "Transaction Fee", "Mempool", "Confirmation", "Transaction Input", 
+                "Transaction Output", "Coinbase Input", "Fee Rate", "Dust Transaction", "Transaction Relay", 
+                "Transaction Pool", "Fee Bumping", "Transaction Size", "Multi-Signature (Multisig)", "Time Lock", 
+                "Escrow", "Pay-to-Public-Key-Hash (P2PKH)", "Pay-to-Script-Hash (P2SH)", "Pay-to-Witness-Public-Key-Hash (P2WPKH)", "Pay-to-Witness-Script-Hash (P2WSH)", 
+                "Transaction Batch", "Coin Selection", "Change Address", "Transaction Confirmation Time", "Transaction Propagation", 
+                "Zero-Confirmation Transaction", "Transaction Signing", "Raw Transaction", "Transaction Weight", "Legacy Transaction",
+                "Replace-by-Sequence (RBF v2 di BIP125 context)", "Sequence Number (nSequence)", "Transaction Finality", "Anchor Outputs"
+            ],
+            "Keamanan": [
+                "51% Attack", "Cold Storage", "Hot Wallet", "Paper Wallet", "Hardware Wallet", 
+                "Seed Phrase", "Brain Wallet", "Multi-Signature Wallet", "Watch-Only Wallet", "Sybil Attack", 
+                "Eclipse Attack", "Finney Attack", "Race Attack", "Double-Spend Attack", "Phishing Attack", 
+                "Dusting Attack", "Key Derivation", "Hierarchical Deterministic (HD) Wallet", "Passphrase", "Two-Factor Authentication (2FA)", 
+                "Address Reuse", "Privacy Leak", "Chain Analysis", "Coin Mixing", "Taint Analysis",
+                "Replay Attack", "Side-channel Attack", "Shamir's Secret Sharing", "Air-gapped System"
+            ],
+            "Ekonomi/Keuangan": [
+                "Market Cap", "Volatility", "Sats (Satoshis)", "Block Subsidy", "Halving Event", 
+                "Supply Cap", "Circulating Supply", "Inflation Rate", "Deflationary Currency", "Bitcoin Price Index", 
+                "Fiat On-Ramp", "Fiat Off-Ramp", "Exchange Rate", "HODL", "Bull Market", 
+                "Bear Market", "Pump and Dump", "Market Order", "Limit Order", "Liquidity", 
+                "Order Book", "Stablecoin Peg", "Speculative Trading", "Bitcoin ETF", "Transaction Volume",
+                "Realized Cap", "On-chain Volume", "Miner Revenue", "Stock-to-Flow (S2F) Model"
+            ],
+            "Jaringan": [
+                "Full Node", "Light Node", "Mining Node", "Peer Discovery", "Network Propagation", 
+                "Gossip Protocol", "Bitcoin Core", "Testnet", "Mainnet", "Regtest", 
+                "Network Fork", "SPV Client", "Node Synchronization", "Block Relay", "Peer Connection", 
+                "Network Latency", "Fork Resolution", "Chain Reorganization", "Block Explorer", "RPC (Remote Procedure Call)", 
+                "P2P Network", "Seed Node", "DNS Seed", "Network Topology", "Bandwidth Usage",
+                "Compact Block Relay", "Inv Message (Inventory)", "Addr Message (Peer Addresses)", "Bloom Filters v2 / BIP37 Deprecation"
+            ]
+        };
+
+        const bitcoinTermsF = {
+            "DeFi & Smart Contracts": [
+                "DeFi (Decentralized Finance)", "Smart Contract", "Lightning Network", "Payment Channel", "Atomic Swap", 
+                "Cross-chain Bridge", "Wrapped Bitcoin (WBTC)", "Layer 2 Solution", "Sidechain", "State Channel", 
+                "Htlc (Hash Time Locked Contract)", "Multi-hop Payment", "Channel Factory", "Watchtower", "Justice Transaction", 
+                "Commitment Transaction", "Revocation Secret", "Onion Routing", "Invoice", "BOLT (Basis of Lightning Technology)"
+            ],
+            "Advanced Trading": [
+                "Arbitrage", "Market Making", "Slippage", "Order Book Depth", "Bid-Ask Spread", 
+                "Volume Weighted Average Price (VWAP)", "Time Weighted Average Price (TWAP)", "Flash Loan", "Liquidation", "Margin Trading", 
+                "Futures Contract", "Options Trading", "Perpetual Swap", "Funding Rate", "Mark Price", 
+                "Index Price", "Premium/Discount", "Backwardation", "Contango", "Delta Hedging"
+            ],
+            "Institutional & Regulatory": [
+                "KYC (Know Your Customer)", "AML (Anti-Money Laundering)", "FATF Travel Rule", "Custody Solution", "Institutional Custody", 
+                "Regulatory Compliance", "MiCA (Markets in Crypto-Assets)", "CBDC (Central Bank Digital Currency)", "Stablecoin Regulation", "Tax Reporting", 
+                "Form 8949", "FIFO (First In First Out)", "LIFO (Last In First Out)", "Specific Identification", "Wash Sale Rule", 
+                "Professional Trading", "Qualified Custody", "Insurance Coverage", "Audit Trail", "Compliance Monitoring"
+            ],
+            "Development & APIs": [
+                "Bitcoin Core API", "JSON-RPC", "REST API", "WebSocket", "Electrum Server", 
+                "Block Explorer API", "Payment Processor", "Webhook", "SDK (Software Development Kit)", "Library Integration", 
+                "Testnet Integration", "Regtest Environment", "Development Tools", "Debugging Tools", "Transaction Builder", 
+                "Fee Estimation API", "Address Validation", "QR Code Generation", "BIP21 Payment URI", "Payment Request"
+            ],
+            "Privacy & Anonymity": [
+                "CoinJoin", "Mixing Service", "Tumbler", "Privacy Coin", "Monero Bridge", 
+                "Tor Network", "VPN Usage", "Address Clustering", "Change Address Detection", "Transaction Graph Analysis", 
+                "UTXO Consolidation", "Coin Control", "Gap Limit", "Address Generation", "Stealth Address", 
+                "Ring Signature", "Zero-Knowledge Proof", "zk-SNARKs", "Bulletproof", "Confidential Transaction"
+            ],
+            "Scaling Solutions": [
+                "Block Size Debate", "Segregated Witness", "Transaction Batching", "UTXO Set Size", "Pruning", 
+                "Compact Block Filter", "Neutrino Protocol", "BIP157/158", "Schnorr Signatures", "Taproot Activation", 
+                "MAST Implementation", "Channel Splicing", "Submarine Swap", "Loop In/Out", "Liquidity Pool", 
+                "Routing Table", "Path Finding", "Multi-path Payment", "Trampoline Routing", "Just-in-Time Routing"
+            ],
+            "Hardware & Infrastructure": [
+                "Full Node Hardware", "Bitcoin Core Installation", "Umbrel Node", "myNode", "RaspiBlitz", 
+                "Casa Node", "Nodl", "Start9 Embassy", "Bitcoin Knots", "Btcd", 
+                "Lightning Node Setup", "Channel Management", "Backup Strategy", "Disaster Recovery", "Cold Storage Setup", 
+                "Multi-signature Setup", "Hardware Security Module", "Secure Boot", "Firmware Verification", "Air Gap Setup"
+            ]
+        };
+
+        // Technical terms for page 2
+        const technicalTermsPage2 = [
+            { term: "SHA-256", explanation: "Algoritma hash kriptografis yang menghasilkan output 256-bit, digunakan Bitcoin untuk penambangan dan keamanan data." },
+            { term: "Merkle Tree", explanation: "Struktur data berbentuk pohon biner untuk merangkum hash transaksi dalam sebuah blok, menghemat ruang penyimpanan." },
+            { term: "Merkle Root", explanation: "Hash tunggal dari semua transaksi dalam blok, disimpan di block header untuk verifikasi efisien." },
+            { term: "Nonce", explanation: "Angka acak yang dicoba-coba oleh penambang untuk menemukan hash blok yang valid sesuai target kesulitan." },
+            { term: "Difficulty", explanation: "Ukuran kesulitan untuk menemukan hash blok yang valid, menentukan seberapa sulit proses penambangan." },
+            { term: "Block Header", explanation: "Bagian blok (80 byte) yang berisi metadata seperti Merkle root, timestamp, nonce, dan hash blok sebelumnya." },
+            { term: "Timestamp", explanation: "Waktu pembuatan blok, dicatat dalam block header untuk menandai urutan kronologis." },
+            { term: "Elliptic Curve Cryptography (ECC)", explanation: "Teknik kriptografi berbasis kurva eliptik untuk menghasilkan kunci publik dan privat di Bitcoin." },
+            { term: "Hash Function", explanation: "Fungsi matematis yang mengubah input menjadi output unik (hash), digunakan untuk keamanan dan verifikasi." },
+            { term: "Block Size", explanation: "Ukuran data blok dalam blockchain, dibatasi (misalnya, 1 MB sebelum SegWit) untuk mengatur kapasitas transaksi." },
+            { term: "SegWit (Segregated Witness)", explanation: "Peningkatan protokol (BIP141) yang memisahkan data tanda tangan dari transaksi untuk meningkatkan kapasitas blok." },
+            { term: "BIP (Bitcoin Improvement Proposal)", explanation: "Usulan perbaikan protokol Bitcoin, seperti BIP32 atau BIP141, untuk pengembangan jaringan." },
+            { term: "Soft Fork", explanation: "Pembaruan protokol yang kompatibel dengan aturan lama, tidak memisahkan blockchain." },
+            { term: "Hard Fork", explanation: "Pembaruan protokol yang tidak kompatibel, menyebabkan pemisahan blockchain menjadi dua versi." },
+            { term: "Chainstate", explanation: "Database yang menyimpan status UTXO terkini untuk memudahkan validasi transaksi oleh node." },
+            { term: "Bloom Filter", explanation: "Struktur data yang digunakan oleh klien ringan (SPV) untuk meminta transaksi tertentu tanpa mengunduh seluruh blockchain." },
+            { term: "SPV (Simplified Payment Verification)", explanation: "Metode untuk memverifikasi transaksi tanpa menjalankan full node, digunakan di wallet ringan." },
+            { term: "Difficulty Adjustment", explanation: "Proses penyesuaian kesulitan penambangan setiap 2016 blok untuk menjaga waktu blok ~10 menit." },
+            { term: "Block Height", explanation: "Nomor urut blok dalam blockchain, dimulai dari 0 (genesis block)." },
+            { term: "Transaction ID (TXID)", explanation: "Hash unik yang mengidentifikasi transaksi tertentu dalam blockchain." },
+            { term: "Witness Data", explanation: "Data tanda tangan dan skrip dalam transaksi SegWit, dipisahkan untuk efisiensi penyimpanan." },
+            { term: "Script", explanation: "Bahasa pemrograman sederhana di Bitcoin untuk mendefinisikan kondisi pengeluaran transaksi (misalnya, membutuhkan tanda tangan)." },
+            { term: "OP_CODE", explanation: "Instruksi dalam script Bitcoin (misalnya, OP_CHECKSIG) untuk menentukan logika transaksi." },
+            { term: "Pubkey Script", explanation: "Bagian script dalam transaksi yang menentukan syarat pengeluaran dana (misalnya, alamat penerima)." },
+            { term: "SigScript", explanation: "Bagian script yang berisi tanda tangan untuk memenuhi syarat pengeluaran dalam Pubkey Script." },
+            { term: "Locktime", explanation: "Waktu atau nomor blok minimum sebelum transaksi bisa dimasukkan ke blockchain." },
+            { term: "nLockTime", explanation: "Parameter dalam transaksi yang menentukan locktime, untuk menunda pengeluaran dana." },
+            { term: "Replace-by-Fee (RBF)", explanation: "Mekanisme untuk mengganti transaksi yang belum dikonfirmasi dengan versi baru yang memiliki biaya lebih tinggi." },
+            { term: "Child-Pays-for-Parent (CPFP)", explanation: "Teknik di mana transaksi baru dengan biaya tinggi membayar untuk mempercepat konfirmasi transaksi sebelumnya." },
+            { term: "Taproot", explanation: "Peningkatan protokol (BIP340-342) yang meningkatkan privasi dan efisiensi dengan Schnorr signatures dan MAST." },
+            { term: "Schnorr Signature", explanation: "Skema tanda tangan digital yang lebih efisien dan mendukung agregasi tanda tangan, diperkenalkan via Taproot." },
+            { term: "Bech32", explanation: "Format alamat Bitcoin (dimulai dengan 'bc1') yang mendukung SegWit, lebih hemat ruang." },
+            { term: "Base58", explanation: "Format pengkodean untuk alamat Bitcoin lama (dimulai dengan '1' atau '3'), menghindari karakter yang membingungkan." },
+            { term: "Double-Spending", explanation: "Upaya untuk menghabiskan Bitcoin yang sama dua kali, dicegah oleh mekanisme konsensus." },
+            { term: "Orphan Block", explanation: "Blok yang valid tetapi tidak masuk ke rantai utama karena kalah bersaing dengan blok lain." },
+            { term: "Stale Block", explanation: "Blok yang ditambang tetapi tidak digunakan karena blok lain diterima lebih dulu oleh jaringan." },
+            { term: "Fork Choice Rule", explanation: "Aturan yang digunakan node untuk memilih rantai blockchain yang valid (biasanya rantai terpanjang)." },
+            { term: "Block Propagation", explanation: "Proses penyebaran blok baru ke seluruh node di jaringan Bitcoin." },
+            { term: "Compact Blocks", explanation: "Protokol untuk mempercepat propagasi blok dengan mengirim data ringkas ke node lain." },
+            { term: "Transaction Malleability", explanation: "Masalah di mana TXID transaksi dapat diubah tanpa mengubah isinya, diperbaiki oleh SegWit." },
+            { term: "MAST (Merkelized Abstract Syntax Tree)", explanation: "Struktur yang memungkinkan skrip kompleks disimpan secara efisien, meningkatkan privasi (bagian dari Taproot)." },
+            { term: "OP_RETURN", explanation: "OP_CODE yang memungkinkan penyisipan data kecil (metadata) dalam transaksi, sering untuk aplikasi non-finansial." },
+            { term: "Witness Version", explanation: "Angka dalam alamat SegWit yang menunjukkan versi aturan witness (misalnya, 0 untuk P2WPKH)." },
+            { term: "CompactSize (varint encoding)", explanation: "Format pengkodean untuk menyimpan angka dengan ukuran variabel, menghemat ruang di blockchain." },
+            { term: "ScriptPubKey", explanation: "Nama lain untuk Pubkey Script, menentukan syarat pengeluaran dana dalam transaksi." },
+            { term: "ScriptSig", explanation: "Nama lain untuk SigScript, menyediakan data (tanda tangan) untuk memenuhi ScriptPubKey." },
+            { term: "BIP32 (HD Wallets)", explanation: "Standar untuk dompet hierarkis deterministik, memungkinkan pembuatan banyak alamat dari satu seed." },
+            { term: "BIP39 (Mnemonic Seed Phrase)", explanation: "Standar untuk membuat frasa kata (mnemonic) sebagai cadangan seed dompet Bitcoin." },
+            { term: "SECP256K1", explanation: "Kurva eliptik spesifik yang digunakan dalam ECC Bitcoin untuk menghasilkan kunci privat dan publik." },
+            { term: "RIPEMD-160", explanation: "Algoritma hash yang digunakan bersama SHA-256 untuk membuat alamat Bitcoin dari public key." }
+        ];
+
+        // Mining terms for page 3
+        const miningTermsPage3 = [
+            { term: "Miner", explanation: "Individu atau entitas yang menggunakan daya komputasi untuk memvalidasi transaksi dan menambang blok baru." },
+            { term: "Mining", explanation: "Proses menggunakan daya komputasi untuk menyelesaikan teka-teki kriptografis guna menambahkan blok ke blockchain." },
+            { term: "Hashrate", explanation: "Kecepatan komputasi (hash per detik) yang digunakan untuk menambang Bitcoin, menunjukkan kekuatan penambang." },
+            { term: "Proof-of-Work (PoW)", explanation: "Mekanisme konsensus Bitcoin di mana penambang bersaing menyelesaikan hash untuk memvalidasi blok." },
+            { term: "Mining Pool", explanation: "Kelompok penambang yang menggabungkan daya komputasi untuk meningkatkan peluang menemukan blok dan berbagi hadiah." },
+            { term: "ASIC (Application-Specific Integrated Circuit)", explanation: "Perangkat keras khusus yang dirancang untuk menambang Bitcoin dengan efisiensi tinggi." },
+            { term: "Block Reward", explanation: "Bitcoin baru yang diberikan kepada penambang untuk setiap blok yang berhasil ditambang (termasuk biaya transaksi)." },
+            { term: "Halving", explanation: "Peristiwa setiap ~4 tahun (210.000 blok) yang mengurangi block reward setengah untuk mengontrol pasokan Bitcoin." },
+            { term: "Difficulty Target", explanation: "Nilai hash maksimum yang harus dipenuhi oleh penambang untuk menghasilkan blok yang valid." },
+            { term: "Mining Difficulty", explanation: "Tingkat kesulitan untuk menemukan hash yang valid, diukur berdasarkan difficulty target." },
+            { term: "Nonce Range", explanation: "Rentang nilai nonce yang dicoba penambang untuk menemukan hash yang memenuhi difficulty target." },
+            { term: "Coinbase Transaction", explanation: "Transaksi khusus dalam blok yang memberikan block reward kepada penambang, juga mencatat data tambahan." },
+            { term: "Mining Rig", explanation: "Sistem komputer atau perangkat keras (biasanya ASIC) yang digunakan untuk menambang Bitcoin." },
+            { term: "Hash Power", explanation: "Kekuatan komputasi (hashrate) yang dimiliki penambang atau jaringan untuk menambang." },
+            { term: "Solo Mining", explanation: "Penambangan dilakukan sendiri tanpa bergabung dengan mining pool, dengan peluang kecil tapi hadiah penuh." },
+            { term: "Pool Mining", explanation: "Penambangan dalam mining pool, di mana hadiah dibagi berdasarkan kontribusi hashrate." },
+            { term: "Stratum Protocol", explanation: "Protokol komunikasi yang digunakan mining pool untuk mengkoordinasikan tugas penambang." },
+            { term: "Share (Mining Share)", explanation: "Solusi parsial yang dikirim penambang ke pool untuk membuktikan kontribusi kerja." },
+            { term: "PPLNS (Pay Per Last N Shares)", explanation: "Sistem pembayaran mining pool berdasarkan jumlah share terakhir yang dikontribusikan." },
+            { term: "PPS (Pay Per Share)", explanation: "Sistem pembayaran mining pool di mana penambang dibayar tetap per share, terlepas dari blok ditemukan." },
+            { term: "Merged Mining", explanation: "Penambangan dua blockchain (misalnya, Bitcoin dan Namecoin) secara bersamaan dengan hashrate yang sama." },
+            { term: "Mining Farm", explanation: "Lokasi besar dengan banyak mining rig untuk menambang Bitcoin secara skala industri." },
+            { term: "Block Template", explanation: "Data yang diberikan kepada penambang berisi transaksi untuk dibentuk menjadi blok baru." },
+            { term: "Getwork", explanation: "Protokol lama untuk mendistribusikan tugas penambangan kepada penambang, digantikan oleh Getblocktemplate." },
+            { term: "Getblocktemplate", explanation: "Protokol modern yang memungkinkan penambang membangun block template sendiri untuk penambangan." },
+            { term: "Mining Software", explanation: "Perangkat lunak yang mengontrol mining rig dan menghubungkannya ke jaringan atau pool." },
+            { term: "Overclocking", explanation: "Meningkatkan kecepatan perangkat keras (ASIC/GPU) untuk menambah hashrate, tapi meningkatkan risiko panas." },
+            { term: "Underclocking", explanation: "Menurunkan kecepatan perangkat keras untuk menghemat daya, mengurangi hashrate tapi lebih stabil." },
+            { term: "Hashrate Distribution", explanation: "Pembagian hashrate di antara penambang atau pool, menunjukkan seberapa terpusat penambangan." },
+            { term: "Mining Centralization", explanation: "Kondisi di mana hashrate didominasi oleh beberapa penambang atau pool besar, mengurangi desentralisasi." },
+            { term: "Mining Difficulty Adjustment Algorithm (DAA)", explanation: "Algoritma yang menyesuaikan mining difficulty setiap 2016 blok untuk menjaga waktu blok ~10 menit." },
+            { term: "Block Time", explanation: "Waktu rata-rata (~10 menit) untuk menambang satu blok baru dalam blockchain Bitcoin." },
+            { term: "Empty Block", explanation: "Blok yang ditambang tanpa transaksi (kecuali coinbase transaction), biasanya karena keterbatasan waktu propagasi." },
+            { term: "Mining Reward Variance", explanation: "Fluktuasi pendapatan penambang karena sifat acak penemuan blok, terutama pada solo mining." }
+        ];
+
+        // Transaction terms for page 4
+        const transactionTermsPage4 = [
+            { term: "UTXO (Unspent Transaction Output)", explanation: "Saldo Bitcoin yang belum dihabiskan dari transaksi sebelumnya, digunakan sebagai input untuk transaksi baru." },
+            { term: "Transaction Fee", explanation: "Biaya yang dibayar pengirim untuk memprioritaskan transaksi agar diproses penambang." },
+            { term: "Mempool", explanation: "Kumpulan transaksi yang belum dikonfirmasi, menunggu untuk dimasukkan ke dalam blok oleh penambang." },
+            { term: "Confirmation", explanation: "Proses di mana transaksi dimasukkan ke dalam blok dan divalidasi oleh jaringan, biasanya dihitung per blok." },
+            { term: "Transaction Input", explanation: "Referensi ke UTXO dari transaksi sebelumnya yang digunakan untuk membayar transaksi baru." },
+            { term: "Transaction Output", explanation: "Bagian transaksi yang menentukan penerima dana dan jumlah Bitcoin yang dikirim." },
+            { term: "Coinbase Input", explanation: "Input khusus dalam coinbase transaction (tanpa UTXO) yang digunakan untuk block reward penambang." },
+            { term: "Fee Rate", explanation: "Biaya transaksi per satuan data (sat/byte atau sat/vByte), menentukan prioritas di mempool." },
+            { term: "Dust Transaction", explanation: "Transaksi dengan nilai sangat kecil yang tidak ekonomis untuk diproses karena biaya lebih besar dari nilai." },
+            { term: "Transaction Relay", explanation: "Proses pengiriman transaksi dari satu node ke node lain dalam jaringan Bitcoin." },
+            { term: "Transaction Pool", explanation: "Istilah lain untuk mempool, tempat transaksi disimpan sementara sebelum dikonfirmasi." },
+            { term: "Fee Bumping", explanation: "Teknik untuk meningkatkan biaya transaksi (misalnya via RBF atau CPFP) agar dipercepat konfirmasinya." },
+            { term: "Transaction Size", explanation: "Ukuran data transaksi (dalam byte atau vByte), memengaruhi biaya transaksi." },
+            { term: "Multi-Signature (Multisig)", explanation: "Skema keamanan yang membutuhkan lebih dari satu tanda tangan untuk mengesahkan transaksi." },
+            { term: "Time Lock", explanation: "Mekanisme untuk menunda pengeluaran transaksi hingga waktu atau blok tertentu tercapai." },
+            { term: "Escrow", explanation: "Transaksi yang melibatkan pihak ketiga tepercaya untuk menahan dana hingga syarat tertentu terpenuhi." },
+            { term: "Pay-to-Public-Key-Hash (P2PKH)", explanation: "Format alamat standar (dimulai dengan '1') yang mengunci dana ke hash public key." },
+            { term: "Pay-to-Script-Hash (P2SH)", explanation: "Format alamat (dimulai dengan '3') yang mengunci dana ke hash skrip, mendukung multisig." },
+            { term: "Pay-to-Witness-Public-Key-Hash (P2WPKH)", explanation: "Format alamat SegWit (dimulai dengan 'bc1') untuk efisiensi dan biaya lebih rendah." },
+            { term: "Pay-to-Witness-Script-Hash (P2WSH)", explanation: "Format alamat SegWit untuk skrip kompleks seperti multisig, lebih efisien." },
+            { term: "Transaction Batch", explanation: "Mengelompokkan beberapa transaksi menjadi satu untuk menghemat biaya dan ruang blok." },
+            { term: "Coin Selection", explanation: "Proses memilih UTXO mana yang akan digunakan untuk membayar transaksi baru." },
+            { term: "Change Address", explanation: "Alamat yang menerima sisa dana (kembalian) dari transaksi setelah membayar penerima." },
+            { term: "Transaction Confirmation Time", explanation: "Waktu yang dibutuhkan untuk transaksi dikonfirmasi dalam blok (~10 menit per konfirmasi)." },
+            { term: "Transaction Propagation", explanation: "Penyebaran transaksi ke seluruh node di jaringan Bitcoin untuk masuk ke mempool." },
+            { term: "Zero-Confirmation Transaction", explanation: "Transaksi yang belum dikonfirmasi di blockchain, berisiko double-spending." },
+            { term: "Transaction Signing", explanation: "Proses menambahkan tanda tangan digital menggunakan private key untuk memvalidasi transaksi." },
+            { term: "Raw Transaction", explanation: "Data transaksi dalam format mentah (hex) sebelum diproses atau dikirim ke jaringan." },
+            { term: "Transaction Weight", explanation: "Ukuran transaksi dalam satuan weight (post-SegWit), memengaruhi biaya dan kapasitas blok." },
+            { term: "Legacy Transaction", explanation: "Transaksi dalam format lama (non-SegWit), seperti P2PKH, dengan biaya lebih tinggi." },
+            { term: "Replace-by-Sequence (RBF v2 di BIP125 context)", explanation: "Versi RBF yang memungkinkan penggantian transaksi berdasarkan sequence number." },
+            { term: "Sequence Number (nSequence)", explanation: "Nilai dalam transaksi yang mengatur locktime atau mendukung RBF untuk penggantian." },
+            { term: "Transaction Finality", explanation: "Status di mana transaksi dianggap tidak dapat dibatalkan, biasanya setelah beberapa konfirmasi." },
+            { term: "Anchor Outputs", explanation: "Output khusus dalam transaksi Lightning Network untuk memastikan kompatibilitas dengan mekanisme keamanan layer 2." }
+        ];
+        
+        const securityTermsPage5 = [
+    { term: "51% Attack", explanation: "Serangan di mana penambang atau kelompok menguasai >50% hashrate jaringan, memungkinkan manipulasi blockchain (misalnya, double-spending)." },
+    { term: "Cold Storage", explanation: "Menyimpan Bitcoin offline (misalnya, di hardware wallet) untuk mencegah peretasan." },
+    { term: "Hot Wallet", explanation: "Dompet Bitcoin yang terhubung ke internet, rentan tapi praktis untuk transaksi cepat." },
+    { term: "Paper Wallet", explanation: "Kunci privat dan publik dicetak di kertas untuk penyimpanan offline yang aman." },
+    { term: "Hardware Wallet", explanation: "Perangkat fisik untuk menyimpan kunci privat secara aman, terisolasi dari internet." },
+    { term: "Seed Phrase", explanation: "Kumpulan kata (biasanya 12-24) yang digunakan untuk memulihkan dompet Bitcoin." },
+    { term: "Brain Wallet", explanation: "Dompet yang kunci privatnya dihasilkan dari frasa yang diingat pengguna, rentan jika frasa lemah." },
+    { term: "Multi-Signature Wallet", explanation: "Dompet yang memerlukan beberapa tanda tangan untuk transaksi, meningkatkan keamanan." },
+    { term: "Watch-Only Wallet", explanation: "Dompet yang hanya bisa melihat saldo dan transaksi, tanpa akses kunci privat." },
+    { term: "Sybil Attack", explanation: "Serangan di mana penyerang membuat banyak node palsu untuk mengacaukan jaringan." },
+    { term: "Eclipse Attack", explanation: "Serangan yang mengisolasi node korban dengan mengendalikan koneksi peer-nya." },
+    { term: "Finney Attack", explanation: "Serangan double-spending di mana penambang memasukkan transaksi palsu ke blok yang ia tambang." },
+    { term: "Race Attack", explanation: "Serangan di mana dua transaksi bersaing dikirim untuk menipu penerima sebelum konfirmasi." },
+    { term: "Double-Spend Attack", explanation: "Upaya menghabiskan Bitcoin yang sama dua kali, dicegah oleh konfirmasi blockchain." },
+    { term: "Phishing Attack", explanation: "Penipuan untuk mencuri kunci privat atau seed phrase melalui situs/email palsu." },
+    { term: "Dusting Attack", explanation: "Serangan yang mengirim Bitcoin kecil (dust) untuk melacak aktivitas alamat dan merusak privasi." },
+    { term: "Key Derivation", explanation: "Proses menghasilkan kunci privat dan publik dari seed atau data lain." },
+    { term: "Hierarchical Deterministic (HD) Wallet", explanation: "Dompet yang menghasilkan banyak alamat dari satu seed (BIP32)." },
+    { term: "Passphrase", explanation: "Kata sandi tambahan untuk mengamankan seed phrase atau dompet." },
+    { term: "Two-Factor Authentication (2FA)", explanation: "Lapisan keamanan tambahan (misalnya, kode SMS atau aplikasi) untuk mengakses dompet/exchange." },
+    { term: "Address Reuse", explanation: "Menggunakan alamat Bitcoin yang sama berulang kali, mengurangi privasi." },
+    { term: "Privacy Leak", explanation: "Kebocoran informasi (misalnya, alamat atau transaksi) yang mengurangi anonimitas pengguna." },
+    { term: "Chain Analysis", explanation: "Teknik untuk melacak transaksi di blockchain guna mengidentifikasi pemilik alamat." },
+    { term: "Coin Mixing", explanation: "Teknik mencampur Bitcoin antar pengguna untuk meningkatkan privasi dan menyulitkan chain analysis." },
+    { term: "Taint Analysis", explanation: "Analisis untuk melacak asal-usul Bitcoin, sering digunakan untuk mendeteksi dana ilegal." },
+    { term: "Replay Attack", explanation: "Serangan di mana transaksi valid dari satu chain diputar ulang di chain lain setelah fork." },
+    { term: "Side-channel Attack", explanation: "Serangan yang mengeksploitasi kebocoran informasi fisik (misalnya, konsumsi daya) untuk mencuri kunci." },
+    { term: "Shamir’s Secret Sharing", explanation: "Metode membagi kunci privat menjadi beberapa bagian untuk keamanan tambahan." },
+    { term: "Air-gapped System", explanation: "Komputer yang sepenuhnya terisolasi dari internet untuk menyimpan atau menandatangani transaksi." }
+];
+
+    // Economic/Financial terms for page 6
+const economicTermsPage6 = [
+    { term: "Market Cap", explanation: "Total nilai semua Bitcoin yang beredar, dihitung dari harga × jumlah Bitcoin yang ada." },
+    { term: "Volatility", explanation: "Tingkat fluktuasi harga Bitcoin yang tinggi, bisa naik/turun drastis dalam waktu singkat." },
+    { term: "Sats (Satoshis)", explanation: "Unit terkecil Bitcoin (1 BTC = 100 juta sats), digunakan untuk transaksi kecil." },
+    { term: "Block Subsidy", explanation: "Hadiah Bitcoin baru yang diberikan kepada penambang setiap blok (saat ini 6.25 BTC)." },
+    { term: "Halving Event", explanation: "Peristiwa setiap ~4 tahun yang mengurangi block reward setengahnya untuk mengontrol inflasi Bitcoin." },
+    { term: "Supply Cap", explanation: "Batas maksimum 21 juta Bitcoin yang akan pernah ada, menciptakan kelangkaan digital." },
+    { term: "Circulating Supply", explanation: "Jumlah Bitcoin yang sudah ditambang dan beredar di pasar saat ini (~19.7 juta dari 21 juta)." },
+    { term: "Inflation Rate", explanation: "Tingkat penambahan Bitcoin baru ke supply, menurun setiap halving hingga mencapai 0% di tahun 2140." },
+    { term: "Deflationary Currency", explanation: "Mata uang yang supply-nya terbatas dan tingkat inflasi menurun, berlawanan dengan fiat currency." },
+    { term: "Bitcoin Price Index", explanation: "Rata-rata harga Bitcoin dari berbagai exchange untuk menentukan harga pasar yang akurat." },
+    { term: "Fiat On-Ramp", explanation: "Layanan untuk menukar uang fiat (rupiah, dollar) menjadi Bitcoin melalui exchange atau broker." },
+    { term: "Fiat Off-Ramp", explanation: "Layanan untuk menukar Bitcoin kembali menjadi uang fiat melalui exchange atau ATM Bitcoin." },
+    { term: "Exchange Rate", explanation: "Nilai tukar Bitcoin terhadap mata uang fiat atau cryptocurrency lain pada waktu tertentu." },
+    { term: "HODL", explanation: "Strategi investasi jangka panjang dengan menahan Bitcoin tanpa menjual meski harga fluktuatif." },
+    { term: "Bull Market", explanation: "Periode pasar naik di mana harga Bitcoin mengalami tren positif dalam jangka waktu lama." },
+    { term: "Bear Market", explanation: "Periode pasar turun di mana harga Bitcoin mengalami tren negatif berkepanjangan." },
+    { term: "Pump and Dump", explanation: "Skema manipulasi harga dengan menaikkan harga artifisial (pump) lalu menjual untuk profit (dump)." },
+    { term: "Market Order", explanation: "Order beli/jual Bitcoin dengan harga pasar saat ini, dieksekusi langsung." },
+    { term: "Limit Order", explanation: "Order beli/jual Bitcoin pada harga tertentu, menunggu hingga harga tercapai." },
+    { term: "Liquidity", explanation: "Kemudahan untuk membeli/menjual Bitcoin tanpa memengaruhi harga secara signifikan." },
+    { term: "Order Book", explanation: "Daftar semua order beli dan jual Bitcoin di exchange, menunjukkan supply dan demand." },
+    { term: "Stablecoin Peg", explanation: "Mata uang kripto yang nilainya dipatok ke aset stabil (misalnya USD) untuk mengurangi volatilitas." },
+    { term: "Speculative Trading", explanation: "Trading Bitcoin berdasarkan prediksi harga untuk profit jangka pendek, berisiko tinggi." },
+    { term: "Bitcoin ETF", explanation: "Dana yang diperdagangkan di bursa saham tradisional dengan underlying asset Bitcoin." },
+    { term: "Transaction Volume", explanation: "Total nilai Bitcoin yang ditransaksikan dalam periode tertentu, indikator aktivitas jaringan." },
+    { term: "Realized Cap", explanation: "Metrik valuasi Bitcoin berdasarkan harga terakhir setiap coin dipindahkan, lebih akurat dari market cap." },
+    { term: "On-chain Volume", explanation: "Volume transaksi yang tercatat langsung di blockchain Bitcoin, tidak termasuk exchange internal." },
+    { term: "Miner Revenue", explanation: "Total pendapatan penambang dari block reward dan transaction fees dalam periode tertentu." },
+    { term: "Stock-to-Flow (S2F) Model", explanation: "Model prediksi harga Bitcoin berdasarkan rasio stock (supply) terhadap flow (produksi tahunan)." }
+];
+
+const networkTermsPage7 = [
+    { term: "Full Node", explanation: "Komputer yang menyimpan salinan lengkap blockchain dan memvalidasi semua transaksi/blok." },
+    { term: "Light Node", explanation: "Node yang hanya menyimpan data minimal (header blok) untuk verifikasi ringan." },
+    { term: "Mining Node", explanation: "Node yang juga menambang blok, menggabungkan fungsi full node dan penambangan." },
+    { term: "Peer Discovery", explanation: "Proses node menemukan node lain untuk terhubung dalam jaringan P2P." },
+    { term: "Network Propagation", explanation: "Penyebaran data (blok/transaksi) ke seluruh node di jaringan Bitcoin." },
+    { term: "Gossip Protocol", explanation: "Mekanisme P2P untuk menyebarkan informasi (transaksi/blok) antar node." },
+    { term: "Bitcoin Core", explanation: "Perangkat lunak utama untuk menjalankan full node Bitcoin, dikembangkan oleh komunitas." },
+    { term: "Testnet", explanation: "Jaringan uji coba Bitcoin untuk menguji fitur tanpa menggunakan Bitcoin asli." },
+    { term: "Mainnet", explanation: "Jaringan utama Bitcoin tempat transaksi nyata terjadi." },
+    { term: "Regtest", explanation: "Jaringan lokal untuk pengujian pribadi, memungkinkan simulasi blockchain." },
+    { term: "Network Fork", explanation: "Pemisahan jaringan karena perbedaan aturan, bisa soft fork atau hard fork." },
+    { term: "SPV Client", explanation: "Klien ringan yang menggunakan Simplified Payment Verification untuk memvalidasi transaksi." },
+    { term: "Node Synchronization", explanation: "Proses node mengunduh dan memverifikasi seluruh blockchain untuk tetap sinkron." },
+    { term: "Block Relay", explanation: "Pengiriman blok baru ke node lain untuk divalidasi dan ditambahkan ke blockchain." },
+    { term: "Peer Connection", explanation: "Koneksi langsung antar node untuk bertukar data dalam jaringan P2P." },
+    { term: "Network Latency", explanation: "Keterlambatan dalam propagasi data antar node, memengaruhi kecepatan konfirmasi." },
+    { term: "Fork Resolution", explanation: "Proses memilih rantai blockchain yang valid saat terjadi fork (biasanya rantai terpanjang)." },
+    { term: "Chain Reorganization", explanation: "Penggantian rantai blockchain jika rantai alternatif yang lebih panjang ditemukan." },
+    { term: "Block Explorer", explanation: "Alat online untuk melihat detail transaksi, blok, dan alamat di blockchain." },
+    { term: "RPC (Remote Procedure Call)", explanation: "Antarmuka untuk berinteraksi dengan node Bitcoin, misalnya untuk mengelola dompet." },
+    { term: "P2P Network", explanation: "Jaringan terdesentralisasi tempat node Bitcoin berkomunikasi langsung." },
+    { term: "Seed Node", explanation: "Node awal yang membantu node baru menemukan peer di jaringan." },
+    { term: "DNS Seed", explanation: "Server yang menyediakan daftar alamat IP seed node untuk peer discovery." },
+    { term: "Network Topology", explanation: "Struktur koneksi antar node dalam jaringan P2P Bitcoin." },
+    { term: "Bandwidth Usage", explanation: "Jumlah data yang digunakan node untuk mengunduh/mengirim transaksi dan blok." },
+    { term: "Compact Block Relay", explanation: "Protokol untuk mempercepat pengiriman blok dengan data ringkas antar node." },
+    { term: "Inv Message (Inventory)", explanation: "Pesan jaringan yang menginformasikan node tentang transaksi/blok baru yang tersedia." },
+    { term: "Addr Message (Peer Addresses)", explanation: "Pesan yang membagikan daftar alamat IP node lain untuk peer discovery." },
+    { term: "Bloom Filters v2 / BIP37 Deprecation", explanation: "Versi terbaru filter untuk klien ringan; BIP37 (versi lama) sudah usang karena masalah privasi." }
+];
+
+
+        
+
+
+        function createShortList() {
+            // Tampilkan 10 item pertama dari kategori "Umum"
+            const umumTerms = bitcoinTerms["Umum"];
+            for (let i = 0; i < Math.min(10, umumTerms.length); i++) {
+                const li = document.createElement('li');
+                li.textContent = umumTerms[i];
+                shortList.appendChild(li);
+            }
+        }
+
+        function createShortListF() {
+    // --- Di sinilah AL bisa mengubah teks yang akan muncul ---
+    const f_list_items = [
+        "Blockchain",
+        "Block",
+        "Bip",
+        "Whitepaper",
+        "Miner",
+        "Node",
+        "PoW",
+        "Dan lainnya...",
+        "", // Baris kosong jika diperlukan
+        "Klik tombol di samping untuk detail ->"
+    ];
+
+    // Membersihkan list lama (jika ada)
+    shortListF.innerHTML = '';
+
+    // Menambahkan setiap item dari array di atas ke dalam list
+    f_list_items.forEach(itemText => {
+        const li = document.createElement('li');
+        li.textContent = itemText;
+        shortListF.appendChild(li);
+    });
+}
+
+
+        function createFullList() {
+            Object.keys(bitcoinTerms).forEach(category => {
+                // Create category header with count
+                const categoryHeader = document.createElement('h3');
+                categoryHeader.textContent = `${category} - ${bitcoinTerms[category].length}`;
+                categoryHeader.style.marginTop = '20px';
+                categoryHeader.style.marginBottom = '10px';
+                categoryHeader.style.fontSize = '16px';
+                categoryHeader.style.fontWeight = 'bold';
+                fullList.appendChild(categoryHeader);
+                
+                // Add HR after category header
+                const hr = document.createElement('hr');
+                hr.style.margin = '10px 0';
+                hr.style.border = 'none';
+                hr.style.height = '1px';
+                hr.style.backgroundColor = '#ccc';
+                fullList.appendChild(hr);
+                
+                // Add terms for this category
+                bitcoinTerms[category].forEach(term => {
+                    const li = document.createElement('li');
+                    li.textContent = term;
+                    fullList.appendChild(li);
+                });
+            });
+        }
+        
+        function createFullListF() {
+            // Create category header
+            const categoryHeader = document.createElement('h3');
+            categoryHeader.textContent = 'Umum ';
+            categoryHeader.style.marginTop = '0px';
+            categoryHeader.style.marginBottom = '10px';
+            categoryHeader.style.fontSize = '16px';
+            categoryHeader.style.fontWeight = 'bold';
+            fullListF.appendChild(categoryHeader);
+            
+            // Add HR after category header
+            const hr = document.createElement('hr');
+            hr.style.margin = '10px 0';
+            hr.style.border = 'none';
+            hr.style.height = '1px';
+            hr.style.backgroundColor = '#ccc';
+            fullListF.appendChild(hr);
+
+            // Add Bitcoin terms with explanations in proper format
+            const bitcoinTermsWithExplanations = [
+                { term: "Bitcoin", explanation: "Mata uang digital terdesentralisasi pertama, diciptakan oleh Satoshi Nakamoto pada 2009, beroperasi tanpa otoritas pusat." },
+                { term: "Blockchain", explanation: "Buku besar digital yang mencatat semua transaksi Bitcoin secara berurutan dan tidak bisa diubah, disimpan di jaringan terdesentralisasi." },
+                { term: "Block", explanation: "Kumpulan transaksi yang dikonfirmasi dan dicatat dalam blockchain, dihubungkan secara kronologis." },
+                { term: "Transaction", explanation: "Transfer nilai Bitcoin antar pengguna, dicatat di blockchain setelah dikonfirmasi." },
+                { term: "Wallet", explanation: "Perangkat lunak atau perangkat keras untuk menyimpan private key dan public key, digunakan untuk mengelola Bitcoin." },
+                { term: "Private Key", explanation: "Kunci rahasia (kode) yang digunakan untuk menandatangani transaksi, membuktikan kepemilikan Bitcoin." },
+                { term: "Public Key", explanation: "Kunci publik yang dihasilkan dari private key, digunakan untuk membuat alamat Bitcoin." },
+                { term: "Address", explanation: "Deretan karakter unik (mirip nomor rekening) yang digunakan untuk mengirim atau menerima Bitcoin." },
+                { term: "Node", explanation: "Komputer yang menjalankan perangkat lunak Bitcoin, menyimpan salinan blockchain, dan memvalidasi transaksi." },
+                { term: "Consensus", explanation: "Proses kesepakatan antar node di jaringan Bitcoin untuk memastikan validitas blockchain, biasanya melalui Proof-of-Work." },
+                { term: "Cryptocurrency", explanation: "Mata uang digital yang menggunakan kriptografi untuk keamanan, seperti Bitcoin." },
+                { term: "Decentralized", explanation: "Sistem tanpa otoritas pusat, di mana kendali didistribusikan ke seluruh jaringan node." },
+                { term: "Ledger", explanation: "Catatan permanen semua transaksi Bitcoin, disimpan di blockchain." },
+                { term: "Hash", explanation: "Fungsi matematis yang mengubah data menjadi string unik dengan panjang tetap, digunakan untuk keamanan dan validasi." },
+                { term: "Digital Signature", explanation: "Tanda tangan elektronik yang dibuat dengan private key untuk memverifikasi keaslian transaksi." },
+                { term: "Satoshi", explanation: "Unit terkecil Bitcoin (1 BTC = 100 juta satoshi), dinamai dari pencipta Bitcoin." },
+                { term: "Peer-to-Peer (P2P)", explanation: "Sistem jaringan di mana node berkomunikasi langsung tanpa perantara, dasar operasi Bitcoin." },
+                { term: "Genesis Block", explanation: "Blok pertama dalam blockchain Bitcoin, diciptakan pada 3 Januari 2009." },
+                { term: "Fork", explanation: "Pemisahan blockchain menjadi dua versi karena perbedaan aturan, bisa soft fork (kompatibel) atau hard fork (tidak kompatibel)." },
+                { term: "Whitepaper", explanation: "Dokumen asli oleh Satoshi Nakamoto (2008) yang menjelaskan konsep dan teknis Bitcoin." }
+            ];
+
+            // Add each term with proper formatting
+            bitcoinTermsWithExplanations.forEach(item => {
+                // Create term name (as regular div, not li)
+                const termDiv = document.createElement('div');
+                termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+                termDiv.style.marginBottom = '5px';
+                termDiv.style.marginTop = '15px';
+                termDiv.style.fontWeight = 'bold';
+                fullListF.appendChild(termDiv);
+                
+                // Create explanation (indented)
+                const explanationDiv = document.createElement('div');
+                explanationDiv.textContent = item.explanation;
+                explanationDiv.style.paddingLeft = '20px'; // Indentation for explanation
+                explanationDiv.style.marginBottom = '10px';
+                explanationDiv.style.lineHeight = '1.5';
+                fullListF.appendChild(explanationDiv);
+            });
+        }
+
+        function createFullListFPage2() {
+            // Create category header
+            const categoryHeader = document.createElement('h3');
+            categoryHeader.textContent = 'Teknis';
+            categoryHeader.style.marginTop = '0px';
+            categoryHeader.style.marginBottom = '10px';
+            categoryHeader.style.fontSize = '16px';
+            categoryHeader.style.fontWeight = 'bold';
+            fullListFPage2.appendChild(categoryHeader);
+            
+            // Add HR after category header
+            const hr = document.createElement('hr');
+            hr.style.margin = '10px 0';
+            hr.style.border = 'none';
+            hr.style.height = '1px';
+            hr.style.backgroundColor = '#ccc';
+            fullListFPage2.appendChild(hr);
+
+            // Add technical terms with explanations
+            technicalTermsPage2.forEach(item => {
+                // Create term name
+                const termDiv = document.createElement('div');
+                termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+                termDiv.style.marginBottom = '5px';
+                termDiv.style.marginTop = '15px';
+                termDiv.style.fontWeight = 'bold';
+                fullListFPage2.appendChild(termDiv);
+                
+                // Create explanation (indented)
+                const explanationDiv = document.createElement('div');
+                explanationDiv.textContent = item.explanation;
+                explanationDiv.style.paddingLeft = '20px'; // Indentation for explanation
+                explanationDiv.style.marginBottom = '10px';
+                explanationDiv.style.lineHeight = '1.5';
+                fullListFPage2.appendChild(explanationDiv);
+            });
+        }
+
+        function createFullListFPage3() {
+            // Create category header
+            const categoryHeader = document.createElement('h3');
+            categoryHeader.textContent = 'Penambangan (Mining) ';
+            categoryHeader.style.marginTop = '0px';
+            categoryHeader.style.marginBottom = '10px';
+            categoryHeader.style.fontSize = '16px';
+            categoryHeader.style.fontWeight = 'bold';
+            fullListFPage3.appendChild(categoryHeader);
+            
+            // Add HR after category header
+            const hr = document.createElement('hr');
+            hr.style.margin = '10px 0';
+            hr.style.border = 'none';
+            hr.style.height = '1px';
+            hr.style.backgroundColor = '#ccc';
+            fullListFPage3.appendChild(hr);
+
+            // Add mining terms with explanations
+            miningTermsPage3.forEach(item => {
+                // Create term name
+                const termDiv = document.createElement('div');
+                termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+                termDiv.style.marginBottom = '5px';
+                termDiv.style.marginTop = '15px';
+                termDiv.style.fontWeight = 'bold';
+                fullListFPage3.appendChild(termDiv);
+                
+                // Create explanation (indented)
+                const explanationDiv = document.createElement('div');
+                explanationDiv.textContent = item.explanation;
+                explanationDiv.style.paddingLeft = '20px';
+                explanationDiv.style.marginBottom = '10px';
+                explanationDiv.style.lineHeight = '1.5';
+                fullListFPage3.appendChild(explanationDiv);
+            });
+        }
+
+        function createFullListFPage4() {
+            // Create category header
+            const categoryHeader = document.createElement('h3');
+            categoryHeader.textContent = 'Transaksi';
+            categoryHeader.style.marginTop = '0px';
+            categoryHeader.style.marginBottom = '10px';
+            categoryHeader.style.fontSize = '16px';
+            categoryHeader.style.fontWeight = 'bold';
+            fullListFPage4.appendChild(categoryHeader);
+            
+            // Add HR after category header
+            const hr = document.createElement('hr');
+            hr.style.margin = '10px 0';
+            hr.style.border = 'none';
+            hr.style.height = '1px';
+            hr.style.backgroundColor = '#ccc';
+            fullListFPage4.appendChild(hr);
+
+            // Add transaction terms with explanations
+            transactionTermsPage4.forEach(item => {
+                // Create term name
+                const termDiv = document.createElement('div');
+                termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+                termDiv.style.marginBottom = '5px';
+                termDiv.style.marginTop = '15px';
+                termDiv.style.fontWeight = 'bold';
+                fullListFPage4.appendChild(termDiv);
+                
+                // Create explanation (indented)
+                const explanationDiv = document.createElement('div');
+                explanationDiv.textContent = item.explanation;
+                explanationDiv.style.paddingLeft = '20px';
+                explanationDiv.style.marginBottom = '10px';
+                explanationDiv.style.lineHeight = '1.5';
+                fullListFPage4.appendChild(explanationDiv);
+            });
+        }
+        
+        function createFullListFPage5() {
+    // Create category header
+    const categoryHeader = document.createElement('h3');
+    categoryHeader.textContent = 'Keamanan ';
+    categoryHeader.style.marginTop = '0px';
+    categoryHeader.style.marginBottom = '10px';
+    categoryHeader.style.fontSize = '16px';
+    categoryHeader.style.fontWeight = 'bold';
+    fullListFPage5.appendChild(categoryHeader);
+    
+    // Add HR after category header
+    const hr = document.createElement('hr');
+    hr.style.margin = '10px 0';
+    hr.style.border = 'none';
+    hr.style.height = '1px';
+    hr.style.backgroundColor = '#ccc';
+    fullListFPage5.appendChild(hr);
+
+    // Add security terms with explanations
+    securityTermsPage5.forEach(item => {
+        // Create term name
+        const termDiv = document.createElement('div');
+        termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+        termDiv.style.marginBottom = '5px';
+        termDiv.style.marginTop = '15px';
+        termDiv.style.fontWeight = 'bold';
+        fullListFPage5.appendChild(termDiv);
+        
+        // Create explanation (indented)
+        const explanationDiv = document.createElement('div');
+        explanationDiv.textContent = item.explanation;
+        explanationDiv.style.paddingLeft = '20px';
+        explanationDiv.style.marginBottom = '10px';
+        explanationDiv.style.lineHeight = '1.5';
+        fullListFPage5.appendChild(explanationDiv);
+    });
+}
+
+function createFullListFPage6() {
+    // Add economic terms with explanations
+    economicTermsPage6.forEach(item => {
+        // Create term name
+        const termDiv = document.createElement('div');
+        termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+        termDiv.style.marginBottom = '5px';
+        termDiv.style.marginTop = '15px';
+        termDiv.style.fontWeight = 'bold';
+        fullListFPage6.appendChild(termDiv);
+        
+        
+        // Create explanation (indented)
+        const explanationDiv = document.createElement('div');
+        explanationDiv.textContent = item.explanation;
+        explanationDiv.style.paddingLeft = '20px';
+        explanationDiv.style.marginBottom = '10px';
+        explanationDiv.style.lineHeight = '1.5';
+        fullListFPage6.appendChild(explanationDiv);
+    });
+    
+    // Add spacer to prevent overlap with dots
+    const spacer = document.createElement('div');
+    spacer.style.height = '50px';
+    fullListFPage6.appendChild(spacer);
+}
+
+function createFullListFPage7() {
+    // Add network terms with explanations
+    networkTermsPage7.forEach(item => {
+        // Create term name
+        const termDiv = document.createElement('div');
+        termDiv.innerHTML = `<strong>| ${item.term}:</strong>`;
+        termDiv.style.marginBottom = '5px';
+        termDiv.style.marginTop = '15px';
+        termDiv.style.fontWeight = 'bold';
+        fullListFPage7.appendChild(termDiv);
+        
+        // Create explanation (indented)
+        const explanationDiv = document.createElement('div');
+        explanationDiv.textContent = item.explanation;
+        explanationDiv.style.paddingLeft = '20px';
+        explanationDiv.style.marginBottom = '10px';
+        explanationDiv.style.lineHeight = '1.5';
+        fullListFPage7.appendChild(explanationDiv);
+    });
+    
+    // Add spacer to prevent overlap with dots
+    const spacer = document.createElement('div');
+    spacer.style.height = '50px';
+    fullListFPage7.appendChild(spacer);
+}
+        
+        createShortList();
+        createFullList();
+        createShortListF();
+        createFullListF();
+        createFullListFPage2();
+        createFullListFPage3();
+        createFullListFPage4();
+        createFullListFPage5();
+        createFullListFPage6();
+        createFullListFPage7();
+        
+
+        // Add scroll event listeners for both modals
+        scrollableList.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                creditText.style.opacity = '1';
+            } else {
+                creditText.style.opacity = '0';
+            }
+        });
+
+        scrollableListF.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                creditTextF.style.opacity = '1';
+            } else {
+                creditTextF.style.opacity = '0';
+            }
+        });
+
+        // Add scroll event for all pages
+        scrollableListPage2.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                creditTextFPage2.style.opacity = '1';
+            } else {
+                creditTextFPage2.style.opacity = '0';
+            }
+        });
+
+        scrollableListPage3.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                creditTextFPage3.style.opacity = '1';
+            } else {
+                creditTextFPage3.style.opacity = '0';
+            }
+        });
+
+        scrollableListPage4.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                creditTextFPage4.style.opacity = '1';
+            } else {
+                creditTextFPage4.style.opacity = '0';
+            }
+            
+            
+        });
+        
+        scrollableListPage5.addEventListener('scroll', function() {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                creditTextFPage5.style.opacity = '1';
+            } else {
+                creditTextFPage5.style.opacity = '0';
+            }
+        });
+        
+        scrollableListPage6.addEventListener('scroll', function() {
+    const scrollTop = this.scrollTop;
+    const scrollHeight = this.scrollHeight;
+    const clientHeight = this.clientHeight;
+    
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+        creditTextFPage6.style.opacity = '1';
+    } else {
+        creditTextFPage6.style.opacity = '0';
+    }
+});
+
+scrollableListPage7.addEventListener('scroll', function() {
+    const scrollTop = this.scrollTop;
+    const scrollHeight = this.scrollHeight;
+    const clientHeight = this.clientHeight;
+    
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+        creditTextFPage7.style.opacity = '1';
+    } else {
+        creditTextFPage7.style.opacity = '0';
+    }
+});
+
+        function goToModalPage(pageNumber) {
+            const pages = [
+                document.getElementById('modalPage1'),
+                document.getElementById('modalPage2'),
+                document.getElementById('modalPage3'),
+                document.getElementById('modalPage4'),
+                document.getElementById('modalPage5'),
+                document.getElementById('modalPage6'),
+                document.getElementById('modalPage7')
+            ];
+            
+            const scrollableElements = [
+                scrollableListF,
+                scrollableListPage2,
+                scrollableListPage3,
+                scrollableListPage4,
+                scrollableListPage5,
+                scrollableListPage6,
+                scrollableListPage7
+            ];
+
+            const creditElements = [
+                creditTextF,
+                creditTextFPage2,
+                creditTextFPage3,
+                creditTextFPage4,
+                creditTextFPage5,
+                creditTextFPage6,
+                creditTextFPage7
+            ];
+            
+            // Hide all pages
+            pages.forEach(page => page.style.display = 'none');
+            
+            // Show selected page
+            if (pageNumber >= 1 && pageNumber <= 7) {
+                pages[pageNumber - 1].style.display = 'flex';
+                currentModalPage = pageNumber;
+                
+                // Reset scroll position and credit text opacity
+                scrollableElements[pageNumber - 1].scrollTop = 0;
+                creditElements[pageNumber - 1].style.opacity = '0';
+                
+                // Update dots
+                document.querySelectorAll('.page-dot').forEach(dot => {
+                    if (parseInt(dot.dataset.page) === pageNumber) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        function openModal() {
+            if (isModalOpen) return;
+            
+            isModalOpen = true;
+            document.body.classList.add('modal-open');
+            
+            // Reset scroll position to top
+            scrollableList.scrollTop = 0;
+            creditText.style.opacity = '0';
+            
+            // Start fade out animation for button image
+            btnImage.classList.add('fade-out');
+            
+            // Use requestAnimationFrame for smooth animation
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    modalBackdrop.classList.add('show');
+                    modal.classList.add('show');
+                });
+            }, 150); // Wait for fade out to complete
+        }
+
+        function closeModal() {
+            if (!isModalOpen) return;
+            
+            isModalOpen = false;
+            
+            // Start closing animation
+            modal.classList.remove('show');
+            modalBackdrop.classList.remove('show');
+            
+            // Restore button image after modal closes
+            setTimeout(() => {
+                btnImage.classList.remove('fade-out');
+                document.body.classList.remove('modal-open');
+            }, 300);
+        }
+
+        function openModalF() {
+            if (isModalFOpen) return;
+            
+            isModalFOpen = true;
+            document.body.classList.add('modal-open');
+            
+            // Reset to page 1 when opening modal
+            goToModalPage(1);
+            
+            // Reset scroll position to top for all pages
+            const scrollableElements = [
+                scrollableListF,
+                scrollableListPage2,
+                scrollableListPage3,
+                scrollableListPage4,
+                scrollableListPage5,
+                scrollableListPage6,
+                scrollableListPage7
+            ];
+
+            const creditElements = [
+                creditTextF,
+                creditTextFPage2,
+                creditTextFPage3,
+                creditTextFPage4,
+                creditTextFPage5,
+                creditTextFPage6,
+                creditTextFPage7
+            ];
+
+            scrollableElements.forEach(el => el.scrollTop = 0);
+            creditElements.forEach(el => el.style.opacity = '0');
+            
+            // Start fade out animation for button image
+            btnImageF.classList.add('fade-out');
+            
+            // Use requestAnimationFrame for smooth animation
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    modalBackdrop.classList.add('show');
+                    modalF.classList.add('show');
+                });
+            }, 150); // Wait for fade out to complete
+        }
+
+        function closeModalF() {
+            if (!isModalFOpen) return;
+            
+            isModalFOpen = false;
+            
+            // Start closing animation
+            modalF.classList.remove('show');
+            modalBackdrop.classList.remove('show');
+            
+            // Restore button image after modal closes
+            setTimeout(() => {
+                btnImageF.classList.remove('fade-out');
+                document.body.classList.remove('modal-open');
+            }, 300);
+        }
+
+        // Add click event listeners to dots after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.page-dot').forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const pageNum = parseInt(this.dataset.page);
+                    goToModalPage(pageNum);
+                });
+            });
+        });
+
+        // Touch/Swipe handling for modal pages
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+
+        function handleTouchStart(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            isDragging = false;
+        }
+
+        function handleTouchMove(e) {
+            if (!startX || !startY) return;
+
+            let currentX = e.touches[0].clientX;
+            let currentY = e.touches[0].clientY;
+
+            let diffX = startX - currentX;
+            let diffY = startY - currentY;
+
+            // Only handle horizontal swipes if they're more significant than vertical
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                isDragging = true;
+                e.preventDefault();
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!startX || !startY || !isDragging) return;
+
+            let currentX = e.changedTouches[0].clientX;
+            let diffX = startX - currentX;
+
+            // Swipe left (next page)
+            if (diffX > 50 && currentModalPage < 7) {
+                goToModalPage(currentModalPage + 1);
+            }
+            // Swipe right (previous page)
+            else if (diffX < -50 && currentModalPage > 1) {
+                goToModalPage(currentModalPage - 1);
+            }
+
+            startX = 0;
+            startY = 0;
+            isDragging = false;
+        }
+
+        // Add touch event listeners to modal F
+        modalF.addEventListener('touchstart', handleTouchStart, { passive: true });
+        modalF.addEventListener('touchmove', handleTouchMove, { passive: false });
+        modalF.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        // Handle ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && (isModalOpen || isModalFOpen)) {
+                closeModal();
+                closeModalF();
+            }
+        });
+
+        // Prevent multiple rapid clicks
+        moveUpBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!isModalOpen) {
+                openModal();
+            }
+        });
+
+        moveUpBtnF.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!isModalFOpen) {
+                openModalF();
+            }
+        });
+    </script>
+    
+    <footer style="position: fixed; left: 0; bottom: 0; width: 100%; text-align: center; background-color: white; padding: 10px 0;">
+    <p style="margin: 0;">@Prentice_al</p>
+</footer>
+<button onclick="window.location.href='home.html';" style="position: fixed; top: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; border: none; background-image: url('back.png'); background-size: cover; cursor: pointer;"></button>
+
+
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mining Simulation (Lokal)</title>
+  <style>
+    /* === TAMBAHAN UNTUK MENGHAPUS TAP HIGHLIGHT === */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* ============================================== */
+    
+    body {
+      margin: 0;
+      font-family: monospace;
+      background: #111;
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* === TOMBOL KEMBALI BARU === */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 45px;
+      height: 45px;
+      background: #fff;
+      color: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.5rem;
+      transition: background-color 0.3s;
+      z-index: 1001; /* Pastikan di atas elemen lain */
+    }
+    .back-btn:hover {
+      background: #ddd;
+    }
+    /* ========================== */
+    
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 80%;
+      max-width: 700px;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 300;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 12px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .main-box {
+      width: 100%;
+      min-height: 200px;
+      background: #0d1117;
+      border: 1px solid #555;
+      border-radius: 12px;
+      padding: 20px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .token-key { color: #9cdcfe; }
+    .token-string { color: #ce9178; }
+    .token-number { color: #b5cea8; }
+    .token-brace { color: #ffd700; }
+    .token-label { color: #569cd6; font-weight: bold; }
+    .token-value { color: #4ec9b0; }
+    #resultHash.success { color: #32cd32; font-weight: bold; }
+
+
+    .button-container {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      margin-right: 55px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover { background: #ddd; }
+    .btn:disabled { background: #555; cursor: not-allowed; }
+
+    .round-btn {
+      width: 45px;
+      height: 45px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+      transition: 0.3s;
+      position: absolute;
+      right: 0;
+    }
+    .round-btn:hover { background: #ddd; }
+    .round-btn:disabled { background: #555; cursor: not-allowed; }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      width: 70vw;
+      max-width: 600px; /* Lebarkan sedikit untuk 4 box */
+      height: 70vh;
+      background: #fff;
+      color: #000;
+      border: 1px solid #000;
+      border-radius: 6px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .modal-content h3 { margin: 0 0 10px 0; font-weight: bold; }
+    .modal-content input { margin: 10px 0; padding: 8px; font-size: 1rem; border: 1px solid #333; border-radius: 4px; width: 100%; box-sizing: border-box; }
+    .hash-output { margin-top: 10px; font-size: 0.9rem; word-break: break-all; }
+    .save-btn { padding: 8px 16px; background: #000; color: #fff; border: none; border-radius: 4px; cursor: pointer; position: absolute; bottom: 20px; right: 20px; }
+    .save-btn:hover { background: #333; }
+    .input-row { display: flex; width: 100%; gap: 10px; align-items: center; margin-bottom: 15px; }
+    .input-row input { flex: 1; }
+    .paste-btn { padding: 8px 12px; background: #000; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    .paste-btn:hover { background: #333; }
+    .grid-boxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin-top: 10px; }
+    .grid-box { background: #ccc; height: 120px; border-radius: 6px; position: relative; padding: 10px; overflow: auto; font-size: 0.75rem; color: #000; white-space: pre-wrap; }
+    .copy-btn { position: absolute; top: 5px; right: 5px; padding: 4px 8px; background: #000; color: #fff; border: none; border-radius: 3px; font-size: 0.7rem; cursor: pointer; }
+    .copy-btn:hover { background: #333; }
+    .custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; border: 1px solid #000; padding: 10px 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: top 0.5s ease; z-index: 9999; }
+    .custom-alert.show { top: 20px; }
+  </style>
+</head>
+<body>
+  
+  <a href="nvme_listp.html" class="back-btn">></a>
+  <div class="center-container">
+    <div class="title">
+      Mining simulator<span class="cursor">_</span>
+    </div>
+    <div class="main-box" id="mainBox"></div>
+    <div class="button-container">
+      <div class="button-row">
+        <button class="btn" id="btnDifficulty">Difficulty</button>
+        <button class="btn" id="btnData">Add data</button>
+      </div>
+      <button class="round-btn" id="playBtn">▶</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modalDifficulty">
+    <div class="modal-content">
+      <h3>Adjust Difficulty:</h3>
+      <input type="number" id="difficultyInput" placeholder="Jumlah angka nol di awal hash" min="0" max="64">
+      <div class="hash-output" id="hashOutput">
+        <strong>Target hash:</strong><br>
+        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+      </div>
+      <button class="save-btn" id="saveDifficulty">Save</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modalData">
+    <div class="modal-content">
+      <h3>Input Data sendiri bebas:</h3>
+      <div class="input-row">
+        <input type="text" id="dataInput" placeholder="Masukkan teks / JSON">
+        <button class="paste-btn" id="pasteBtn">Paste</button>
+      </div>
+      <div class="grid-boxes">
+        <div class="grid-box" id="box1"></div>
+        <div class="grid-box" id="box2"></div>
+        <div class="grid-box" id="box3"></div>
+        <div class="grid-box" id="box4"></div>
+      </div>
+      <button class="save-btn" id="saveData">Save</button>
+    </div>
+  </div>
+
+  <div class="custom-alert" id="customAlert">Saved!</div>
+
+<script>
+    // === FUNGSI HASHING SHA-256 LOKAL (TANPA CDN) ===
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    // === DOM ELEMENTS ===
+    const diffInput = document.getElementById("difficultyInput");
+    const hashOutput = document.getElementById("hashOutput");
+    const saveDiffBtn = document.getElementById("saveDifficulty");
+    const dataInput = document.getElementById("dataInput");
+    const mainBox = document.getElementById("mainBox");
+    const playBtn = document.getElementById("playBtn");
+    const btns = document.querySelectorAll(".btn");
+
+    // === MINING STATE ===
+    let difficulty = 2;
+    let dataToMine = ''; // Defaultnya kosong
+    let isMining = false;
+    let animationFrameId;
+
+    // === FUNCTIONS ===
+    function showAlert(message) {
+      const alertBox = document.getElementById("customAlert");
+      alertBox.textContent = message;
+      alertBox.classList.add("show");
+      setTimeout(() => { alertBox.classList.remove("show"); }, 3000);
+    }
+
+    function highlightJSON(jsonString) {
+      try {
+        const jsonObj = JSON.parse(jsonString);
+        jsonString = JSON.stringify(jsonObj, null, 2);
+      } catch (e) {
+        return `<span class="token-string">"${jsonString}"</span>`;
+      }
+      return jsonString.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+        let cls = 'token-number';
+        if (/^"/.test(match)) { cls = /:$/.test(match) ? 'token-key' : 'token-string'; }
+        return `<span class="${cls}">${match}</span>`;
+      }).replace(/\{|\}/g, match => `<span class="token-brace">${match}</span>`);
+    }
+
+    function updateMainDisplay(nonce = 'N/A', result = 'N/A', isSuccess = false) {
+        const dataDisplay = dataToMine ? highlightJSON(dataToMine) : `<i style="color:#888;">&lt;No data set&gt;</i>`;
+        mainBox.innerHTML = `
+<span class="token-label">Data :</span>
+${dataDisplay}
+
+<span class="token-label">Nonce :</span> <span class="token-value" id="nonce-display">${nonce}</span>
+<span class="token-label">Difficulty :</span> <span class="token-value">${difficulty}</span>
+<span class="token-label">Result :</span> <span id="resultHash" class="${isSuccess ? 'success' : ''}">${result}</span>`;
+    }
+
+    function togglePlayButtonState() {
+        playBtn.disabled = !dataToMine;
+    }
+
+    async function startMining() {
+      if (isMining || !dataToMine) return;
+      isMining = true;
+      playBtn.textContent = '■';
+      btns.forEach(b => b.disabled = true);
+
+      let nonce = 0;
+      const targetPrefix = '0'.repeat(difficulty);
+      const nonceDisplay = document.getElementById('nonce-display');
+      const resultDisplay = document.getElementById('resultHash');
+
+      const mineStep = async () => {
+        if (!isMining) { stopMining(); return; }
+        const dataWithNonce = dataToMine + nonce;
+        const hash = await sha256(dataWithNonce);
+        nonceDisplay.textContent = nonce;
+        resultDisplay.textContent = hash;
+
+        if (hash.startsWith(targetPrefix)) {
+          isMining = false;
+          resultDisplay.classList.add('success');
+          showAlert(`Nonce Found! \nNonce: ${nonce}`);
+          stopMining();
+        } else {
+          nonce++;
+          animationFrameId = requestAnimationFrame(mineStep);
+        }
+      };
+      mineStep();
+    }
+    
+    function stopMining() {
+        isMining = false;
+        if(animationFrameId) cancelAnimationFrame(animationFrameId);
+        playBtn.textContent = '▶';
+        btns.forEach(b => b.disabled = false);
+    }
+    
+    // === EVENT LISTENERS ===
+    playBtn.addEventListener('click', () => {
+        if (isMining) {
+            stopMining();
+        } else {
+            updateMainDisplay(0, 'starting...');
+            setTimeout(startMining, 50);
+        }
+    });
+
+    saveDiffBtn.addEventListener("click", () => {
+        // Jika input kosong, parseInt jadi NaN, lalu `|| 0` membuatnya jadi 0.
+        // Ini hanya terjadi saat di-save.
+        difficulty = parseInt(diffInput.value) || 0; 
+        localStorage.setItem("difficulty", difficulty);
+        document.getElementById("modalDifficulty").style.display = "none";
+        showAlert("Difficulty saved!");
+        updateMainDisplay();
+    });
+
+    diffInput.addEventListener("input", () => {
+        let n = parseInt(diffInput.value);
+
+        // Jika inputnya bukan angka (termasuk saat kosong), anggap 0 untuk kalkulasi
+        if (isNaN(n)) {
+            n = 0;
+        }
+
+        // Validasi nilai minus atau lebih dari 64
+        if (n < 0) {
+            n = 0;
+            diffInput.value = 0;
+        }
+        if (n > 64) {
+            n = 64;
+            diffInput.value = 64;
+        }
+        
+        // Tetap update tampilan target hash secara real-time
+        const target = "0".repeat(n) + "f".repeat(64 - n);
+        hashOutput.innerHTML = `<strong>Target hash:</strong><br>${target}`;
+    });
+
+    document.getElementById("pasteBtn").addEventListener("click", async () => {
+      try { dataInput.value = await navigator.clipboard.readText(); } 
+      catch { showAlert("Clipboard access denied."); }
+    });
+
+    document.getElementById("saveData").addEventListener("click", () => {
+      dataToMine = dataInput.value; // Bisa string kosong
+      localStorage.setItem("dataInput", dataToMine);
+      document.getElementById("modalData").style.display = "none";
+      showAlert(dataToMine ? "Data saved!" : "Data cleared!");
+      updateMainDisplay();
+      togglePlayButtonState();
+    });
+
+    document.getElementById("btnDifficulty").onclick = () => { document.getElementById("modalDifficulty").style.display = "flex"; };
+    document.getElementById("btnData").onclick = () => { document.getElementById("modalData").style.display = "flex"; };
+    window.onclick = (event) => { if (event.target.classList.contains("modal")) event.target.style.display = "none"; };
+
+    // === INITIALIZATION ===
+    function initialize() {
+      // Data JSON untuk 4 box
+      const boxData = {
+        box1: `{"version":536870912,"prev_block_hash":"0000000000000000000a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2","merkle_root":"f1e2d3c4b5a697887a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e","timestamp":1736384400,"bits":"1705e276","height":876543}`,
+        box2: `{"version":536870912,"prev_block_hash":"0000000000000000001f2e3d4c5b6a7890b1c2d3e4f5a6b7c8d9e0f1a2b3c4d","merkle_root":"a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a","timestamp":1736384500,"bits":"1705c123","height":876544}`,
+        box3: `{"version":536870912,"prev_block_hash":"0000000000000000002a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4","merkle_root":"b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b","timestamp":1736384600,"bits":"1705a789","height":876545}`,
+        box4: `{"version":536870912,"prev_block_hash":"0000000000000000003b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5","merkle_root":"c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c","timestamp":1736384700,"bits":"1705b456","height":876546}`
+      };
+
+      // Loop untuk mengisi 4 box dan menambahkan tombol copy
+      for (const id in boxData) {
+        const box = document.getElementById(id);
+        const jsonData = boxData[id];
+        box.innerText = JSON.stringify(JSON.parse(jsonData), null, 2); // Tampilkan versi pretty
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.textContent = 'Copy';
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(jsonData);
+          dataInput.value = jsonData;
+          showAlert("Copied & pasted!");
+        };
+        box.appendChild(copyBtn);
+      }
+
+      difficulty = parseInt(localStorage.getItem("difficulty")) || 2;
+      dataToMine = localStorage.getItem("dataInput") || ''; // Default kosong
+      
+      diffInput.value = difficulty;
+      dataInput.value = dataToMine; // Bisa kosong
+      
+      diffInput.dispatchEvent(new Event('input')); // Trigger update tampilan hash target
+      updateMainDisplay();
+      togglePlayButtonState(); // Cek apakah tombol play harus disable
+    }
+    
+    initialize();
+</script>
+</body>
+</html>

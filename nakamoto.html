@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satoshi Nakamoto</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #fff;
+      color: #000;
+      margin: 10px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 150px 0 20px 0;
+      display: inline-block;
+      border-bottom: 1px solid #000;
+      padding-bottom: 4px;
+      font-weight: normal;
+    }
+    .point-title {
+      font-size: 2rem;
+      margin: 30px 0 10px 0;
+      font-weight: normal;
+      text-align: left;
+    }
+    .point-text {
+      font-size: 1rem;
+      max-width: 800px;
+      text-align: left;
+      margin: 0 auto;
+      position: relative;
+    }
+    .text-with-border {
+      border-left: 1px solid #000;
+      padding-left: 10px;
+      margin-left: 10px;
+    }
+    
+    /* Tombol Back */
+    .back-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background-image: url('back.png');
+      background-size: cover;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1000;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+    }
+    .back-button.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .modal-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      position: absolute;
+      bottom: 0;
+      right: 10px;
+      transform: translateY(50%);
+      z-index: 10;
+      transition: transform 0.2s ease, opacity 0.5s ease, transform 0.5s ease;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+    }
+    .modal-button.hidden {
+      opacity: 0;
+      transform: translateY(50%) scale(0.5);
+    }
+    .modal-button:active {
+      animation: bounce 0.3s ease;
+    }
+    .modal-button img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      opacity: 0;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      transition: opacity 0.5s ease;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+    }
+    .modal-container.visible {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 25px;
+      width: calc(90vw - 20px);
+      height: calc(90vh - 20px);
+      position: relative;
+      margin: 10px;
+      padding: 20px;
+      transform: scale(0.8);
+      transition: transform 0.5s ease;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+      overflow-y: auto;
+    }
+    .modal-container.visible .modal-content {
+      transform: scale(1);
+    }
+    .close-button {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #000;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+    }
+    /* Posisi dan efek untuk tombol di dalam modal */
+    .modal-button-inside {
+      position: absolute;
+      top: 52px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background-image: url('move.jpg');
+      background-size: cover;
+      border-radius: 50%;
+      display: none;
+      cursor: pointer;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .modal-button-inside.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .modal-text {
+      font-size: 1rem;
+      text-align: left;
+      margin-top: 50px;
+      padding: 0 10px;
+    }
+    .modal-text h3 {
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+    .modal-text ul {
+      padding-left: 20px;
+    }
+    
+    /* Keyframes untuk efek bounce */
+    @keyframes bounce {
+      0% {
+        transform: translateY(50%);
+      }
+      50% {
+        transform: translateY(30%);
+      }
+      100% {
+        transform: translateY(50%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="home.html" class="back-button" id="backButton"></a>
+  
+  <h1>satoshi nakamoto</h1>
+
+  <div class="point-title">About :</div>
+  <div class="point-text text-with-border">
+    Satoshi Nakamoto adalah nama samaran (pseudonym) yang digunakan oleh individu atau kelompok yang menciptakan Bitcoin, mata uang kripto pertama di dunia, dan merilis whitepaper-nya pada tahun 2008. Identitas sebenarnya dari Satoshi Nakamoto hingga kini masih menjadi misteri, dan ini adalah salah satu topik yang paling banyak diperdebatkan dalam komunitas kripto.
+  </div>
+
+  <div class="point-title">Activity :</div>
+  <div class="point-text text-with-border" id="activity-section">
+    Satoshi Nakamoto, pencipta Bitcoin, mulai mengembangkan kode pada Mei 2007, merilis whitepaper Bitcoin pada 31 Oktober 2008, dan meluncurkan jaringan pada 3 Januari 2009 dengan menambang genesis block. Ia aktif di Bitcointalk dan email. Pada akhir 2010, ia menyerahkan kendali proyek kepada komunitas dan menghilang pada April 2011 setelah menyatakan "bergeram ke hal lain," hanya muncul sekali pada 2014 untuk membantah identitasnya sebagai Dorian Nakamoto.
+    <button id="main-button-activity" class="modal-button" onclick="showModal('modal-activity')">
+      <img src="move.jpg" alt="Tombol Modal">
+    </button>
+  </div>
+  
+  <div class="point-title">Profile :</div>
+  <div class="point-text text-with-border" id="profile-section">
+    Nama: Satoshi Nakamoto<br>
+    Tanggal Lahir: 5 April 1975<br>
+    Tempat Tinggal: Jepang<br>
+    Jenis Kelamin: Pria<br>
+    Kepemilikan Bitcoin: 750.000–1,1 juta BTC<br>
+    Aktivitas Terakhir: Maret 2014
+    <button id="main-button-profile" class="modal-button" onclick="showModal('modal-profile')">
+      <img src="move.jpg" alt="Tombol Modal">
+    </button>
+  </div>
+
+  <div class="point-title">Patoshi :</div>
+  <div class="point-text text-with-border" id="patoshi-section">
+    Patoshi Pattern, ditemukan Sergio Demian Lerner, menunjukkan Satoshi Nakamoto menambang 750.000–1,1 juta BTC (2009–2010) dengan pola unik dan jeda 5 menit per blok.... 
+    <button id="main-button-patoshi" class="modal-button" onclick="showModal('modal-patoshi')">
+      <img src="move.jpg" alt="Tombol Modal">
+    </button>
+  </div>
+  
+  <div id="modal-activity" class="modal-container" onclick="closeModalOutside(event, 'modal-activity')">
+    <div class="modal-content">
+      <div id="modal-button-inside-activity" class="modal-button-inside" onclick="closeModal('modal-activity')"></div>
+      <div class="modal-text">
+        <p><strong> Detail </strong></p>
+        <hr>
+      <br>
+      	<p> - </p>
+      <br>
+      	<br>
+        
+        <h3>1. Pengembangan Awal Bitcoin (Mei 2007 – Oktober 2008)</h3>
+        <hr>
+        <ul>
+          <li><strong>Menulis Kode Bitcoin:</strong> Satoshi mulai menulis kode untuk Bitcoin pada Mei 2007 menggunakan bahasa pemrograman C++. Ia bekerja sendirian selama sekitar 18 bulan untuk mengembangkan implementasi awal perangkat lunak Bitcoin. Kode ini mencakup elemen-elemen kunci seperti sistem proof-of-work, struktur blockchain, dan protokol peer-to-peer. Gaya penulisan kodenya dianggap efisien tetapi minim komentar dan menggunakan nama variabel yang singkat, yang oleh beberapa pengembang dianggap "tidak standar" atau "aneh".</li>
+          <br>
+          <li><strong>Mempelajari Pendahulu:</strong> Satoshi mempelajari konsep-konsep kripto sebelumnya seperti Bit Gold (Nick Szabo), B-Money (Wei Dai), dan Hashcash (Adam Back). Ia mengintegrasikan ide-ide seperti proof-of-work dan timestamping ke dalam desain Bitcoin, terutama untuk mengatasi masalah double-spending. Dalam whitepaper-nya, ia kemudian menambahkan referensi ke B-Money atas saran Adam Back, menunjukkan bahwa ia terinspirasi tetapi membangun sistem yang lebih praktis.</li>
+          <br>
+          <li><strong>Kontak dengan Cypherpunk:</strong> Pada Agustus 2008, Satoshi mengirim email pribadi ke dua tokoh cypherpunk, Hal Finney dan Wei Dai, untuk meminta masukan tentang draf awal whitepaper Bitcoin. Keduanya memberikan tanggapan positif, menyebut konsepnya menjanjikan. Ini menunjukkan bahwa Satoshi sengaja mencari validasi dari komunitas kriptografi sebelum merilis idenya secara publik.</li>
+     
+        </ul>
+                <br>
+        	<br>
+          	<br>
+        <h3>2. Publikasi Whitepaper (31 Oktober 2008)</h3>
+        <hr>
+        <p>Satoshi mempublikasikan whitepaper Bitcoin: A Peer-to-Peer Electronic Cash System melalui mailing list kriptografi di metzdowd.com. Dokumen 9 halaman ini menjelaskan visi untuk sistem uang elektronik terdesentralisasi yang memungkinkan transaksi langsung tanpa perantara, menggunakan blockchain dan proof-of-work untuk menjamin keamanan dan integritas.</p>
+        <p>Dalam whitepaper, ia menulis: <i>"A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution."</i> Pernyataan ini mencerminkan motivasinya untuk menciptakan alternatif terhadap sistem keuangan terpusat, terutama setelah krisis keuangan 2008.</p>
+        <p>Tanggapan awal dari komunitas kriptografi cukup sepi, tetapi beberapa individu seperti Hal Finney menunjukkan ketertarikan.</p>
+                <br>
+        	<br>
+          	<br>
+        <h3>3. Peluncuran Jaringan Bitcoin (3 Januari 2009)</h3>
+        <hr>
+        <p>Satoshi merilis Bitcoin versi 0.1 di SourceForge, sebuah platform untuk proyek open-source, dan menambang genesis block (blok pertama dalam blockchain Bitcoin) pada 3 Januari 2009. Dalam blok ini, ia menyisipkan pesan: <i>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"</i>, yang merujuk pada headline surat kabar Inggris, menunjukkan kritiknya terhadap sistem keuangan tradisional.</p>
+        <p>Ia menjadi salah satu penambang awal, menambang banyak blok pertama dengan pola penambangan yang kemudian dikenal sebagai | Patoshi Pattern. Pola ini, diidentifikasi oleh peneliti seperti Sergio Demian Lerner, menunjukkan bahwa Satoshi menggunakan pendekatan unik dalam nilai nonce dan interval blok, yang membedakannya dari penambang lain. Diperkirakan ia menambang sekitar 968.000 hingga 1,1 juta BTC pada 2009, yang tetap tidak tersentuh hingga kini.</p>
+        <p>Satoshi juga melakukan transaksi Bitcoin pertama dengan mengirim 10 BTC ke Hal Finney, yang menjadi pengguna awal perangkat lunak Bitcoin dan membantu menguji jaringan.</p>
+                <br>
+        	<br>
+          	<br>
+        <h3>4. Aktivitas di Komunitas (2009 – 2010)</h3>
+        <hr>
+        <ul>
+          <li><strong>Bitcointalk Forum:</strong> Pada 2009, Satoshi membuat forum Bitcointalk untuk mendiskusikan pengembangan Bitcoin. Ia aktif memposting di forum ini (total sekitar 539 postingan) untuk menjelaskan teknis Bitcoin, menanggapi pertanyaan, dan memperbaiki bug. Contohnya, ia sering mendiskusikan skalabilitas, biaya transaksi, dan keamanan jaringan.</li>
+          <br>
+          <li><strong>Kolaborasi dengan Pengembang:</strong> Satoshi berkolaborasi dengan pengembang seperti Hal Finney, Gavin Andresen, dan Martti Malmi. Ia menerima laporan bug dan saran perbaikan dari Finney, yang juga membantu mengembangkan Reusable Proof-of-Work. Satoshi juga bekerja dengan Martti Malmi untuk mendaftarkan domain bitcoin.org, yang hingga kini menjadi sumber informasi resmi tentang Bitcoin.</li>
+          <br>
+          <li><strong>Perbaikan Kode:</strong> Satoshi secara aktif memperbaiki bug dalam perangkat lunak Bitcoin. Misalnya, pada 2010, ketika Value Overflow Incident terjadi (menciptakan 184 miliar BTC karena bug overflow integer), Satoshi dan tim dengan cepat merilis pembaruan untuk memperbaikinya. Ini menunjukkan keterlibatan dalam menjaga stabilitas jaringan.</li>
+          <br>
+          <li><strong>Komunikasi via Email:</strong> Satoshi sering berkomunikasi melalui email dengan pengembang lain, menggunakan alamat seperti satoshi@gmx.com. Dalam email-email ini, ia membahas detail teknis seperti algoritma SHA-256, yang menjadi dasar keamanan Bitcoin, dan menjelaskan visinya tentang desentralisasi. Beberapa email menunjukkan nada frustrasi ketika menghadapi skeptisisme atau kesalahan pengguna, tetapi secara umum ia tetap teknis dan fokus pada solusi.</li>
+        </ul>
+                <br>
+        	<br>
+          	<br>
+        <h3>5. Mundur dari Bitcoin (Akhir 2010 – April 2011)</h3>
+        <hr>
+        <p>Sepanjang 2010, Satoshi mulai mengurangi keterlibatannya. Ia menyerahkan kendoli repositori kode sumber dan kunci peringatan jaringan (network alert key) kepada Gavin Andresen, menunjukkan bahwa ia mempercayakan proyek kepada komunitas.</p>
+        <p>Pada Desember 2010, Satoshi memposting pesan terakhirnya di Bitcointalk, meskipun beberapa komunikasi pribadi yang belum diverifikasi dilaporkan hingga April 2011. Dalam email terakhirnya kepada seorang pengembang, ia berkata: <i>"I've moved on to other things. It's in good hands with Gavin and everyone."</i> Ini menandakan kepergiannya dari proyek Bitcoin.</p>
+        <p>Setelah itu, Satoshi menghilang sepenuhnya dari ruang publik. Ia tidak lagi menggunakan akun email atau profil forumnya, dan dompet Bitcoin-nya, yang diperkirakan berisi sekitar 1 juta BTC, tetap tidak tersentuh.</p>
+                <br>
+        	<br>
+          	<br>
+        <h3>6. Kemunculan Singkat (Maret 2014)</h3>
+        <hr>
+        <p>Pada Maret 2014, akun Satoshi di P2P Foundation tiba-tiba aktif kembali untuk memposting pesan singkat: <i>"I am not Dorian Nakamoto."</i> Ini merespons artikel Newsweek yang salah mengidentifikasi Dorian Nakamoto, seorang insinyur di California, sebagai pencipta Bitcoin. Pesan ini adalah komunikasi publik terakhir yang dikaitkan dengan Satoshi, meskipun ada spekulasi bahwa akunnya mungkin diretas.</p>
+                <br>
+        	<br>
+          	<br>
+        <h3>7. Karakteristik Aktivitas dan Pola Perilaku</h3>
+        <hr>
+        <ul>
+          <li><strong>Zona Waktu dan Bahasa:</strong> Berdasarkan analisis waktu postingan di Bitcointalk, SourceForge, dan email (total 34 email dan 169 commit di SourceForge), aktivitas Satoshi menunjukkan bahwa ia mungkin berada di zona waktu GMT (Inggris), EST, atau MST (AS). Ia sering menggunakan ejaan Inggris Britania seperti "favour" dan "maths," yang memicu spekulasi bahwa ia mungkin dari Inggris atau terdidik di sana. Namun, pola waktu aktivitasnya tidak konsisten, menambah misteri lokasinya.</li>
+          <br>
+          <li><strong>Anonimitas dan Privasi:</strong> Satoshi sangat berhati-hati menjaga anonimitasnya. Ia tidak pernah membagikan detail pribadi, bahkan dalam profil P2P Foundation-nya yang menyebutkan ia sebagai pria berusia 37 tahun di Jepang (yang dianggap tidak benar oleh banyak orang). Ia juga kemungkinan menggunakan banyak alamat Bitcoin untuk block reward guna meminimalkan risiko pelacakan, seperti ditunjukkan oleh Patoshi pattern.</li>
+          <br>
+          <li><strong>Filosofi Cypherpunk:</strong> Satoshi terkait erat dengan gerakan cypherpunk, yang menganjurkan privasi dan desentralisasi melalui kriptografi. Visinya untuk Bitcoin mencerminkan ideologi ini, dengan fokus pada kebebasan finansial dan mengurangi ketergantungan pada institusi terpusat.</li>
+          <br>
+          <li><strong>Strategi Penambangan:</strong> Analisis Patoshi pattern menunjukkan bahwa Satoshi kadang menghentikan aktivitas penambangan, mungkin untuk menguji ketahanan jaringan terhadap serangan atau untuk mendorong partisipasi penambang lain. Ini menunjukkan pendekatan eksperimental dalam membangun jaringan yang kuat.</li>
+       <br>
+          	<br>
+          	<br>
+          	<br>
+               |Source : grok ai
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div id="modal-profile" class="modal-container" onclick="closeModalOutside(event, 'modal-profile')">
+    <div class="modal-content">
+      <div id="modal-button-inside-profile" class="modal-button-inside" onclick="closeModal('modal-profile')"></div>
+      <div class="modal-text">
+        <p><strong> Detail  </strong></p>
+        <hr>
+        	<br>
+        	-
+        	<br>
+        	<br>
+        	
+        <p>
+           <strong>| Nama: </strong>Satoshi Nakamoto (pseudonim, identitas asli tidak diketahui)
+            <br>
+            <br>
+            	<br>
+            	
+         <strong>  | Tanggal Lahir: </strong> 5 April 1975 (berdasarkan profil P2P Foundation). Catatan: Banyak yang percaya tanggal ini simbolis, merujuk pada Executive Order 6102 (5 April 1933, larangan kepemilikan emas di AS) dan pencabutannya pada 1975, bukan tanggal lahir asli.
+            <br>
+            <br>
+            	<br>
+            	
+           <strong>| Usia (2025): </strong> Jika tanggal lahir benar, ia berusia 50 tahun pada 2025. Namun, analisis gaya penulisan (double space, Hungarian notation) dan pengetahuan sejarahnya (misalnya, referensi Hunt brothers 1980) menunjukkan ia mungkin lebih tua, mungkin berusia 60-an.
+            <br>
+            <br>
+            	<br>
+           <strong> | Jenis Kelamin: </strong> Pria (berdasarkan klaim di profil P2P Foundation, yang menyebutkan "male").
+            <br>
+            <br>
+            	<br>
+          <strong>| Tempat Tinggal: </strong> Jepang (disebutkan di profil P2P Foundation). Namun, ini diragukan karena gaya penulisan dalam Bahasa Inggris Britania (contoh: "colour", "optimise") dan pola aktivitas online (kurang aktif antara 5-11 pagi GMT) menunjukkan ia mungkin tinggal di AS atau Inggris.
+            <br>
+            <br>
+            	<br>
+          <strong>| Kebangsaan: </strong>Tidak diketahui. Nama "Satoshi Nakamoto" terdengar Jepang, tetapi gaya bahasa dan referensi budaya (seperti headline The Times di genesis block) menunjukkan ia mungkin bukan orang Jepang.
+            <br>
+            <br>
+            	<br>
+           <strong>| Pekerjaan: </strong>Kriptografer, pengembang perangkat lunak, dan kemungkinan ekonom (berdasarkan keahlian dalam kriptografi, ilmu komputer, dan desain ekonomi Bitcoin).
+            <br>
+            <br>
+            	<br>
+         <strong> | Keahlian: </strong>Kriptografi, ilmu komputer, ekonomi, dan pengembangan perangkat lunak (terlihat dari kode Bitcoin yang ditulis dalam C++ dan desain sistem proof-of-work).
+            <br>
+            <br>
+            	<br>
+          <strong> | Akun yang Diketahui: </strong>
+            <br>
+             P2P Foundation: Profilnya (username: Satoshi Nakamoto) mencantumkan tanggal lahir 5 April 1975 dan lokasi Jepang. Akun ini aktif terakhir pada Maret 2014 untuk membantah klaim bahwa ia adalah Dorian Nakamoto.
+            <br>
+        <strong>   | Bitcointalk Forum: </strong> Satoshi memposting sekitar 539 pesan antara 2009-2010, mendiskusikan teknis Bitcoin dan menanggapi komunitas.
+            <br>
+            	<br>
+            	<br>
+          <strong>  | Email: </strong>Menggunakan alamat seperti satoshin@gmx.com untuk komunikasi dengan pengembang seperti Hal Finney dan Gavin Andresen.
+            <br>
+            	<br>
+            	<br>
+        <strong>   | SourceForge: </strong>Merilis Bitcoin v0.1 pada Januari 2009 dan mengelola repositori kode hingga menyerahkannya ke Gavin Andresen pada 2010.
+            <br>
+            <br>
+            	<br>
+        <strong>   | Kepemilikan Bitcoin: </strong>Diperkirakan memiliki 750.000–1,1 juta BTC, tersebar di ribuan alamat (berdasarkan Patoshi pattern yang diidentifikasi oleh Sergio Demian Lerner), ditambang pada 2009-2010, senilai sekitar $63,8–$93,5 miliar pada April 2025 (dengan harga BTC ~$85.000). Koin ini tidak pernah dipindahkan.
+            <br>
+            	<br>
+            <br>
+         <strong>   | Aktivitas Terakhir: </strong> Desember 2010 (postingan terakhir di Bitcointalk) dan April 2011 (email terakhir ke Gavin Andresen). Satu pesan pada Maret 2014 di P2P Foundation menyatakan "I am not Dorian Nakamoto."
+            <br>
+            	<br>
+            	<br>
+            	<br>
+            	<br>
+            	<br>
+            	<br>
+            	
+          |Source : grok ai
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-patoshi" class="modal-container" onclick="closeModalOutside(event, 'modal-patoshi')">
+    <div class="modal-content">
+      <div id="modal-button-inside-patoshi" class="modal-button-inside" onclick="closeModal('modal-patoshi')"></div>
+      <div class="modal-text">
+        <p><strong> Detail </strong></p>
+        <hr>
+        	<br>
+        	-
+        	<br>
+        	<br>
+        <p><strong>APA ITU PATOSHI PATTERN?</strong></p>
+        <p>Patoshi Pattern adalah pola unik yang ditemukan dalam data blockchain Bitcoin, khususnya pada blok-blok awal yang ditambang pada tahun 2009–2010. Pola ini mengacu pada karakteristik tertentu dalam nilai ExtraNonce pada transaksi coinbase (transaksi yang memberikan hadiah blok kepada penambang) yang menunjukkan bahwa sejumlah besar blok kemungkinan ditambang oleh satu entitas, yang diyakini adalah Satoshi Nakamoto, pencipta Bitcoin.</p>
+        
+        <p>Nama "Patoshi" diciptakan oleh Sergio Demian Lerner, peneliti yang pertama kali mengidentifikasi pola ini, sebagai kombinasi dari "Satoshi" dan istilah yang mencerminkan pola penambangan unik. Pola ini penting karena memberikan wawasan tentang aktivitas penambangan awal Bitcoin, membantu memperkirakan jumlah Bitcoin yang ditambang oleh Satoshi (sekitar 750.000–1,1 juta BTC), dan mengungkapkan niat Satoshi dalam menjaga stabilitas jaringan. Patoshi Pattern juga menyoroti kejeniusan teknis Satoshi sekaligus misteri seputar identitas dan motivasinya.</p>
+        <br>
+        	<br>
+        <h3>1. Pembuat Patoshi Pattern</h3>
+        <hr>
+        	-
+        <p><strong>SERGIO DEMIAN LERNER</strong></p>
+        <p>Sergio Demian Lerner adalah seorang kriptografer Argentina, kepala inovasi di IOV Labs, dan pencipta Rootstock (RSK), sebuah sidechain untuk Bitcoin. Ia adalah peneliti terkemuka di bidang blockchain yang mulai menganalisis data Bitcoin sejak awal kemunculannya. Lerner dikenal karena penelitiannya yang mendalam tentang privasi dan keamanan blockchain, termasuk penemuan Patoshi Pattern.</p>
+        
+        <ul>
+          <li><strong>Penemuan Awal (2013):</strong> Pada Maret 2013, Lerner menerbitkan sebuah postingan di blognya, Bitslog, berjudul "The Well Deserved Fortune of Satoshi Nakamoto, Bitcoin's Creator, Visionary and Genius." Dalam penelitian ini, ia menganalisis blockchain Bitcoin dan menemukan pola unik dalam nilai ExtraNonce pada transaksi coinbase dari blok-blok awal. Ia memperkirakan bahwa satu penambang (dijuluki "Patoshi") menambang sekitar 22.000 blok, mengumpulkan sekitar 1,1 juta BTC.</li>
+          <br>
+          <li><strong>Penyempurnaan (2019):</strong> Pada April 2019, Lerner merilis makalah lanjutan berjudul "The Return of the Deniers and the Revenge of Patoshi," yang membantah kritik terhadap penelitian awalnya dan memperkuat bukti bahwa pola ini berasal dari satu penambang. Ia menggunakan analisis waktu stempel (timestamp) untuk menunjukkan bahwa 43% dari 50.000 blok pertama memiliki waktu stempel yang konsisten, menunjukkan penggunaan satu komputer.</li>
+          <br>
+          <li><strong>Kontribusi Lain:</strong> Lerner juga meneliti aspek lain, seperti jeda penambangan Satoshi selama 5 menit di awal setiap blok, yang menambah spekulasi tentang motifnya. Penelitiannya telah menjadi acuan utama dalam memahami aktivitas penambangan awal Bitcoin.</li>
+          <br>
+        </ul>
+        <br>
+        	<br>
+          	<br>
+        
+        <h3>2. Bagaimana Patoshi Pattern Ditemukan dan Mengapa Dikaitkan dengan Satoshi?</h3>
+        <hr>
+        	-
+        <p>Patoshi Pattern ditemukan melalui analisis teknis terhadap blockchain Bitcoin, khususnya pada tiga kelemahan privasi dalam kode klien Bitcoin versi 0.1 yang digunakan pada 2009–2010. Berikut adalah langkah-langkah dan metode yang digunakan untuk mengidentifikasi blok-blok yang kemungkinan ditambang oleh Satoshi:</p>
+        
+        <p><strong>|  Kelemahan Dalam Kode Bitcoin v0.1:</strong></p>
+        <p>Lerner menemukan tiga cacat privasi dalam kode Bitcoin awal yang memungkinkan pelacakan pola penambangan:</p>
+        <ul>
+          <li><strong>ExtraNonce:</strong> Dalam proses penambangan, penambang mencari nilai nonce untuk menghasilkan hash blok yang valid. Jika nonce tidak cukup, ExtraNonce (bidang tambahan dalam transaksi coinbase) bertambah secara berurutan. Pada klien Bitcoin v0.1, ExtraNonce meningkat dengan cara yang khas untuk setiap penambang, menciptakan "sidik jari" unik.</li>
+          <br>
+          <li><strong>Waktu Stempel (Timestamp):</strong> Setiap blok memiliki stempel waktu berdasarkan jam komputer penambang. Lerner menemukan bahwa blok-blok Patoshi memiliki waktu stempel yang konsisten tanpa inversi waktu (yaitu, urutan waktu yang tidak terputus), menunjukkan penggunaan satu komputer.</li>
+          <br>
+          <li><strong>Konsistensi Hash Rate:</strong> Lerner menghitung laju hash (hash rate) dari penambang awal. Satu penambang (Patoshi) memiliki laju hash yang sangat konsisten, mirip dengan yang terlihat pada 14 hari pertama jaringan Bitcoin (ketika hanya Satoshi yang menambang).</li>
+          <br>
+        </ul>
+                <br>
+        	<br>
+        <p><strong>|  Analisis ExtraNonce:</strong></p>
+        <p>Lerner memetakan nilai ExtraNonce dari 10.000 blok pertama dalam bentuk scatter plot. Ia menemukan bahwa nilai ExtraNonce untuk banyak blok membentuk garis lurus dengan kemiringan seragam, menunjukkan bahwa blok-blok ini ditambang oleh satu entitas. Garis-garis ini tidak tumpang tindih dan memiliki pola yang konsisten, berbeda dari penambang lain yang memiliki pola ExtraNonce lebih acak. Dalam plot, garis-garis curam (dengan kemiringan seragam) dianggap sebagai blok Patoshi, sementara titik-titik hijau (penambang lain) memiliki pola yang lebih tidak teratur.</p>
+        <br>
+        	<br>
+        <p><strong>|  Korelasi dengan Transaksi Satoshi:</strong></p>
+        <p>Untuk memastikan bahwa Patoshi adalah Satoshi, Lerner mengaitkan blok-blok Patoshi dengan transaksi yang diketahui melibatkan Satoshi. Misalnya, Bitcoin dari blok Patoshi dikirim ke Hal Finney dalam transaksi Bitcoin pertama (10 BTC pada Januari 2009), yang dikonfirmasi oleh Finney sebagai transaksi dari Satoshi. Transaksi ini memberikan bukti bahwa penambang Patoshi adalah Satoshi atau seseorang yang sangat terkait dengannya.</p>
+                <br>
+        	<br>
+        <p><strong>|  Timestamp dan Jeda Penambangan:</strong></p>
+        <p>Lerner menemukan bahwa blok-blok Patoshi memiliki waktu stempel yang sangat konsisten, menunjukkan penggunaan satu komputer tanpa jeda waktu yang tidak wajar. Ia juga mencatat bahwa Patoshi berhenti menambang selama 10 hari pada satu periode, terlihat sebagai celah dalam pola ExtraNonce (disebut sebagai "Patoshi gap"). Selain itu, Lerner menemukan bahwa Patoshi tidak menambang selama 5 menit pertama setiap blok, yang disebut sebagai "5-minute restraint." Ini mungkin dilakukan untuk memberikan kesempatan kepada penambang lain atau untuk menguji ketahanan jaringan terhadap serangan (misalnya, serangan 51%).</p>
+                <br>
+        	<br>
+        <p><strong>|  Estimasi Jumlah Blok dan Bitcoin:</strong></p>
+        <p>Lerner memperkirakan Patoshi menambang sekitar 22.000 blok, menghasilkan 1,1 juta BTC. Estimasi lain, seperti dari Whale Alert, menyebutkan hingga 1,125,150 BTC dari 54.316 blok. Blok-blok ini diidentifikasi melalui pola ExtraNonce dan waktu stempel yang konsisten, serta fakta bahwa Bitcoin dari blok-blok ini sebagian besar tidak pernah dipindahkan.</p>
+                <br>
+        	<br>
+        <p><strong>|  Metode Clustering:</strong></p>
+        <p>Untuk mengotomatisasi identifikasi blok Patoshi, Lerner dan peneliti lain seperti Elementus menggunakan teknik clustering berbasis line space. Nilai ExtraNonce diubah menjadi ruang parameter (line space), di mana garis-garis lurus dari plot ExtraNonce menjadi titik-titik interseksi. Titik-titik dengan kepadatan tinggi menunjukkan blok-blok dari satu penambang (Patoshi). Teknik ini memungkinkan pemisahan blok Patoshi dari penambang lain dengan akurasi tinggi.</p>
+        <br>
+        	<br>
+          	<br>
+        <h3>3. Mengapa Patoshi Dianggap Satoshi?</h3>
+        <hr>
+        	-
+        <ul>
+          <li><strong>Konteks Historis:</strong> Pada 14 hari pertama jaringan Bitcoin (Januari 2009), Satoshi kemungkinan besar adalah satu-satunya penambang, karena Bitcoin masih sangat baru dan tidak dikenal. Laju hash Patoshi konsisten dengan periode ini.</li>
+          <br>
+          <li><strong>Transaksi Terkonfirmasi:</strong> Transaksi seperti pengiriman 10 BTC ke Hal Finney dari blok Patoshi memperkuat bahwa penambang ini adalah Satoshi.</li>
+          <br>
+          <li><strong>Konsistensi Perangkat:</strong> Pola ExtraNonce dan waktu stempel menunjukkan penggunaan satu komputer atau pengaturan penambangan unik, yang sesuai dengan aktivitas Satoshi sebagai pengembang awal Bitcoin.</li>
+          <br>
+          <li><strong>Motivasi Non-Profit:</strong> Peneliti seperti Jameson Lopp mencatat bahwa Patoshi sering mengurangi laju hash ketika penambang lain bergabung, menunjukkan fokus pada stabilitas jaringan daripada keuntungan pribadi, yang selaras dengan visi desentralisasi Satoshi.</li>
+          <br>
+        </ul>
+        <br>
+        	<br>
+          	<br>
+        <h3>4. Fakta Menarik </h3>
+        <hr>
+        <p>-</p>
+        
+        <ul>
+          <li><strong>Jeda 5 Menit sebagai "Tanda" atau Strategi:</strong> Lerner menemukan bahwa Patoshi sengaja tidak menambang selama 5 menit pertama setiap blok. Beberapa spekulasi menyebutkan ini adalah cara Satoshi "menandai" Bitcoin-nya, meskipun Lerner berpendapat ini lebih mungkin merupakan efek samping dari pengaturan penambangan multithreaded. Satoshi mungkin membagi nonce space untuk menghindari redundansi antar thread, yang menghasilkan pola unik ini. Fakta ini menarik karena menunjukkan bahwa Satoshi mungkin secara sadar merancang sistemnya untuk membedakan dirinya dari penambang lain, meskipun motifnya tidak jelas.</li>
+          <br>
+          	<br>
+          <li><strong>Penggunaan Multithreaded PC atau FPGA?:</strong> Lerner mengusulkan bahwa Satoshi menggunakan PC multithreaded untuk menambang, dengan setiap thread menjelajahi nonce space yang berbeda untuk menghindari tumpang tindih. Ada juga spekulasi bahwa Satoshi mungkin menggunakan Field-Programmable Gate Array (FPGA), teknologi canggih pada 2009, yang akan menjelaskan efisiensi penambangannya. Ini menunjukkan Satoshi mungkin "menciptakan" penambangan GPU sebelum teknologi tersebut umum digunakan.</li>
+          <br>
+          	<br>
+          <li><strong>Celah Penambangan 10 Hari:</strong> Salah satu anomali dalam Patoshi Pattern adalah jeda 10 hari di mana Patoshi berhenti menambang, terlihat sebagai celah dalam plot ExtraNonce. Ini mungkin menunjukkan Satoshi mematikan komputernya untuk alasan pribadi, menguji ketahanan jaringan, atau mendorong penambang lain untuk bergabung.</li>
+          <br>
+          	<br>
+          <li><strong>Timestamp Anomali dan Teori Satelit:</strong> Lerner menemukan anomali dalam waktu stempel blok Patoshi yang menunjukkan adanya "gap" kecil antara blok-blok yang ditambang sendiri. Dalam postingan blognya, ia berspekulasi (meskipun dengan nada bercanda) bahwa ini bisa diakibatkan oleh latensi transmisi, seolah-olah Satoshi menambang dari satelit. Meskipun teori ini tidak serius, anomali ini menunjukkan bahwa Satoshi mungkin menggunakan perangkat dengan pengaturan waktu yang sangat presisi.</li>
+          <br>
+          	<br>
+          <li><strong>Tidak Ada Pengeluaran Bitcoin:</strong> Hingga Agustus 2025, tidak ada Bitcoin dari blok-blok Patoshi yang dipindahkan, meskipun nilainya mencapai $92,85–$136,18 miliar pada harga ATH $123.800. Ini menimbulkan pertanyaan: apakah Satoshi kehilangan akses ke kunci pribadi, sengaja tidak menggunakannya untuk menjaga integritas Bitcoin, atau bahkan sudah meninggal?</li>
+          <br>
+          	<br>
+          <li><strong>Kontroversi Blok 3654 (Mei 2020):</strong> Pada Mei 2020, sebuah dompet yang tidak aktif selama 11 tahun memindahkan 50 BTC dari blok 3654, memicu spekulasi bahwa Satoshi kembali. Namun, Nic Carter menunjukkan bahwa blok ini tidak termasuk dalam Patoshi Pattern, sehingga kemungkinan bukan milik Satoshi. Adam Back juga menyatakan bahwa jika Satoshi ingin menjual, ia akan memilih blok yang lebih baru, bukan dari awal 2009. Ini menegaskan bahwa pola Patoshi adalah indikator kuat untuk mengesampingkan transaksi non-Satoshi.</li>
+          <br>
+          	<br>
+          <li><strong>Pengaruh pada Klaim Craig Wright:</strong> Craig Wright, yang mengaku sebagai Satoshi, sering dikaitkan dengan Patoshi Pattern dalam gugatan hukum. Namun, Lerner menyatakan bahwa pola ini tidak mendukung klaim Wright, karena Wright tidak dapat menunjukkan kunci pribadi dari blok-blok Patoshi atau menjelaskan pola teknisnya. Ini menjadikan Patoshi Pattern sebagai alat untuk menyangkal klaim identitas palsu.</li>
+          <br>
+          	<br>
+          <li><strong>Motivasi Altruistik Satoshi:</strong> Analisis oleh Jameson Lopp dan Adam Back menunjukkan bahwa Satoshi (sebagai Patoshi) sering mengurangi laju hash ketika penambang lain bergabung, mungkin untuk mendorong desentralisasi dan mencegah serangan 51%. Ini menunjukkan bahwa Satoshi lebih peduli pada stabilitas jaringan daripada keuntungan pribadi, sebuah fakta yang jarang ditekankan.</li>
+          <br>
+          	<br>
+          <li><strong>Kode Bitcoin v0.1 yang "Primitif":</strong> Kelemahan privasi dalam kode Bitcoin v0.1 yang memungkinkan penemuan Patoshi Pattern menunjukkan bahwa Satoshi tidak sempurna. Kode ini memiliki bug, seperti Value Overflow Incident 2010, dan kurangnya optimasi privasi, yang memungkinkan Lerner melacak pola penambangan. Ini menarik karena menunjukkan bahwa Satoshi, meskipun jenius, bekerja dengan sumber daya terbatas dan belajar sambil jalan.</li>
+          <br>
+          	<br>
+          <li><strong>Estimasi Whale Alert:</strong> Organisasi Whale Alert memberikan estimasi paling akurat hingga kini, menyatakan bahwa Patoshi menambang hingga blok 54.316, menghasilkan 1,125,150 BTC. Ini sedikit lebih tinggi dari estimasi awal Lerner, menunjukkan bahwa analisis Patoshi terus disempurnakan seiring waktu.</li>
+        </ul>
+        <br>
+          	<br>
+          	<br>
+        <h3>5. Detail Teknis Patoshi Pattern</h3>
+        <hr>
+        	-
+        <ul>
+          <li><strong>Visualisasi:</strong> Dalam plot ExtraNonce, blok-blok Patoshi muncul sebagai garis lurus berwarna biru dengan kemiringan seragam, sementara penambang lain (titik hijau) lebih acak. Garis-garis ini tidak tumpang tindih dan berhenti pada titik tertentu, menunjukkan koordinasi dari satu entitas.</li>
+          <br>
+          <li><strong>Clustering di Line Space:</strong> Teknik line space mengubah data ExtraNonce menjadi ruang parameter, di mana garis lurus menjadi titik-titik interseksi. Empat wilayah interseksi utama menunjukkan empat segmen linear utama, yang dianggap sebagai blok Patoshi.</li>
+                    <br>
+          <li><strong>Jeda Penambangan:</strong> Selain jeda 10 hari, ada periode lain di mana Patoshi mengurangi aktivitas, mungkin untuk menguji jaringan atau mendorong partisipasi penambang lain. Ini terlihat dalam plot sebagai celah kecil di antara garis-garis biru.</li>
+                    <br>
+          <li><strong>Perangkat Penambangan:</strong> Lerner berhipotesis bahwa Satoshi menggunakan PC multithreaded dengan nonce space yang dibagi, atau bahkan FPGA, yang akan sangat canggih untuk 2009. Ini menjelaskan mengapa Patoshi memiliki laju hash yang jauh lebih tinggi dibandingkan penambang lain.</li>
+                    <br>
+        </ul>
+        <br>
+        	<br>
+          	<br>
+        <h3>6. Implikasi dan Misteri</h3>
+        <hr>
+        	-
+        <ul>
+          <li><strong>Implikasi:</strong> Patoshi Pattern tidak hanya mengungkap jumlah Bitcoin Satoshi, tetapi juga menunjukkan pendekatan eksperimentalnya dalam membangun jaringan. Jeda penambangan dan pengurangan hash rate menunjukkan bahwa Satoshi mungkin sengaja mengorbankan keuntungan untuk memastikan desentralisasi dan keamanan.</li>
+                    <br>
+          <li><strong>Misteri yang Tersisa:</strong> Mengapa Satoshi tidak menambang selama 5 menit pertama? Apakah ini sengaja untuk "menandai" bloknya, atau hanya efek samping teknis? Mengapa Bitcoin-nya tidak pernah dipindahkan? Apakah Satoshi masih hidup atau memiliki akses ke kunci pribadinya?</li>
+        </ul>
+        <br>
+        	<br>
+        	          <br>
+        	<p>          |Source : grok ai</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastScrollTop = 0;
+    const backButton = document.getElementById('backButton');
+    
+    function handleScroll() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (scrollTop > lastScrollTop && scrollTop > 100) {
+        backButton.classList.add('hidden');
+      } else {
+        backButton.classList.remove('hidden');
+      }
+      
+      lastScrollTop = scrollTop;
+    }
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    function showModal(modalId) {
+      const mainButton = document.getElementById(`main-button-${modalId.split('-')[1]}`);
+      const modal = document.getElementById(modalId);
+      const modalButtonInside = document.getElementById(`modal-button-inside-${modalId.split('-')[1]}`);
+      
+      modal.style.display = 'flex';
+      mainButton.classList.add('hidden');
+      mainButton.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        modal.classList.add('visible');
+        modalButtonInside.style.display = 'block';
+
+        setTimeout(() => {
+          modalButtonInside.classList.add('visible');
+        }, 500); 
+      }, 50); 
+    }
+
+    function closeModal(modalId) {
+      const mainButton = document.getElementById(`main-button-${modalId.split('-')[1]}`);
+      const modal = document.getElementById(modalId);
+      const modalContent = modal.querySelector('.modal-content');  
+      const modalButtonInside = document.getElementById(`modal-button-inside-${modalId.split('-')[1]}`);
+      
+      modalButtonInside.classList.remove('visible');
+      modal.classList.remove('visible');
+
+      modalContent.scrollTop = 0;  
+
+      setTimeout(() => {
+        modal.style.display = 'none';
+        modalButtonInside.style.display = 'none';
+        mainButton.classList.remove('hidden');
+        mainButton.style.pointerEvents = 'auto';
+      }, 500);  
+    }
+
+    function closeModalOutside(event, modalId) {
+        if (event.target.classList.contains('modal-container')) {
+          closeModal(modalId);
+        }
+    }
+  </script>
+  <div style="width: 100%; text-align: center; background-color: white; padding: 10px 0; margin-top: 100px;">
+  <p style="margin: 0;">@Prentice_al</p>
+</div>
+
+</body>
+</html>

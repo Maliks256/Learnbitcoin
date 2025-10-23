@@ -1,0 +1,751 @@
+<!DOCTYPE html>  
+<html lang="id">  
+<head>  
+  <meta charset="utf-8" />  
+  <meta name="viewport" content="width=device-width,initial-scale=1" />  
+  <title>Bitcoin P2PKH Flow - AL (Fixed)</title>  
+  <style>  
+    :root {  
+      --container-w: 640px;  
+      --gap: 18px;  
+      --radius: 12px;  
+    }  
+    html,body {  
+      height: 100%;  
+      margin: 0;  
+      background: #fff;  
+      font-family: monospace, "Courier New", Courier, monospace;  
+      color: #000;  
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }  
+    .wrap {  
+      min-height: 100%;  
+      display: flex;  
+      align-items: center;  
+      justify-content: center;  
+      padding: 24px;  
+      box-sizing: border-box;  
+      position: relative;
+    }  
+    .container {  
+      width: min(var(--container-w), 96vw);  
+      text-align: center;  
+      padding: 22px;  
+    }  
+    h1 {  
+      margin: 0 0 18px 0;  
+      font-size: 20px;  
+      font-weight: 700;  
+    }  
+    .controls {  
+      display: flex;  
+      gap: 12px;  
+      justify-content: center;  
+      margin-top: 24px;  
+      flex-wrap: wrap;  
+    }  
+
+    /* Generate & Restart button */  
+    .action-btn {  
+      background: #fff;  
+      color: #000;  
+      border: 1px solid #000;  
+      padding: 10px 14px;  
+      border-radius: 8px;  
+      cursor: pointer;  
+      font-family: monospace;  
+      font-weight: 700;  
+      opacity: 1;
+      transition: background .25s ease, transform .25s ease, opacity .4s ease;  
+    }  
+    .action-btn:hover:not([disabled]) {  
+      background: #f7f7f7;  
+      transform: scale(1.02);  
+    }  
+    .action-btn[disabled] {  
+      opacity: 0.45;  
+      cursor: not-allowed;  
+    }
+    
+    .action-btn.fade-out {
+      opacity: 0;
+    }
+    
+    .action-btn.fade-in {
+      opacity: 1;
+    }  
+
+    /* Show modal button - pojok kiri atas */
+    .show-modal-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 50%;
+      cursor: pointer;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 18px;
+      color: #000;
+      display: none; /* Hidden by default */
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: all 0.25s ease;
+    }
+    
+    .show-modal-btn:hover {
+      background: #f7f7f7;
+      transform: scale(1.05);
+    }
+    
+    .show-modal-btn.visible {
+      display: flex;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .modal-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Modal content */
+    .modal-content {
+      width: 90%;
+      height: 90%;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 12px;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      position: relative;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal-overlay.visible .modal-content {
+      transform: scale(1);
+    }
+
+    /* Modal close button */
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #000;
+      font-family: monospace;
+      font-weight: 700;
+    }
+    
+    .modal-close:hover {
+      color: #666;
+    }
+
+    /* Modal title */
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+      text-align: center;
+      padding-right: 40px; /* Space for close button */
+    }
+
+    /* Modal field */
+    .modal-field {
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    
+    .modal-field label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    
+    .modal-field .value {
+      word-break: break-all;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #000;
+      font-family: monospace;
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    /* Back button - bulat dengan background putih + outline hitam tipis */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 50%;
+      cursor: pointer;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 20px;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    
+    .back-btn:hover {
+      background: #f7f7f7;
+      transform: scale(1.05);
+    }
+
+    /* FIXED: Restart button positioning - lebih sederhana dan reliable */
+    .restart-btn {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #fff;
+      color: #000;
+      border: 1px solid #000;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 14px;
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(.25,.8,.25,1);
+      display: none; /* FIXED: Start dengan display none */
+    }
+    
+    .restart-btn:hover {
+      background: #f7f7f7;
+    }
+    
+    /* FIXED: Proper visible state dengan transform yang benar */
+    .restart-btn.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .restart-btn.visible:hover {
+      transform: translateX(-50%) translateY(0) scale(1.02);
+    }
+
+    /* Copy button polos */  
+    .copy-btn {  
+      background: none;  
+      border: none;  
+      color: #000;  
+      font-size: 13px;  
+      cursor: pointer;  
+      padding: 0;  
+    }  
+    .copy-btn:hover { text-decoration: underline; }  
+
+    /* Individual field copy buttons */
+    .field-copy-btn {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      color: #000;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+      transition: background .25s ease;
+    }
+    .field-copy-btn:hover {
+      background: #e0e0e0;
+    }
+
+    #outputArea {  
+      display: flex;  
+      flex-direction: column;  
+      align-items: center;  
+      gap: var(--gap);  
+      margin-top: 18px;  
+    }  
+
+    .field {  
+      width: calc(100% - 48px);  
+      background: #fff;  
+      border: 1px solid #000;  
+      border-radius: var(--radius);  
+      padding: 16px;  
+      box-sizing: border-box;  
+      opacity: 0;  
+      transform: translateY(14px);  
+      transition: opacity 600ms cubic-bezier(.25,.8,.25,1), transform 600ms cubic-bezier(.25,.8,.25,1);  
+      display: flex;  
+      flex-direction: column;  
+      align-items: flex-start;  
+    }  
+    .field.visible {  
+      opacity: 1;  
+      transform: translateY(0);  
+    }  
+    .field label {  
+      font-weight: 700;  
+      margin-bottom: 8px;  
+    }  
+    .field .value {  
+      word-break: break-all;  
+      font-size: 13px;  
+      line-height: 1.4;  
+      background: #f9f9f9;  
+      padding: 8px;  
+      border-radius: 6px;  
+      border: 1px solid #ddd;  
+      width: 100%;  
+      box-sizing: border-box;  
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }  
+
+    .stacked {  
+      display: flex;  
+      flex-direction: column;  
+      gap: 12px;  
+      align-items: stretch;  
+    }  
+
+    /* FIXED: Mobile responsive restart button */
+    @media (max-width:420px) {  
+      .field .value { font-size:12px; }  
+      .action-btn { padding: 8px 10px; }  
+      .restart-btn {
+        position: static;
+        margin-top: 16px;
+        transform: none;
+        left: auto;
+        bottom: auto;
+      }
+      .restart-btn.visible {
+        transform: none;
+      }
+      .restart-btn.visible:hover {
+        transform: scale(1.02);
+      }
+      .back-btn {
+        top: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+      }
+      
+      .show-modal-btn {
+        top: 15px;
+        left: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+      }
+      
+      .modal-content {
+        width: 95%;
+        height: 95%;
+        padding: 15px;
+      }
+      
+      .modal-title {
+        font-size: 18px;
+      }
+    }
+
+  </style>  
+</head>  
+<body>  
+  <div class="wrap">  
+    <!-- Show modal button -->
+    <button id="showModalBtn" class="show-modal-btn" title="Show Full Data">📊</button>
+    
+    <!-- Back button -->
+    <a href="nvme_listp.html" class="back-btn" title="Back to List">></a>
+    
+    <div class="container">  
+      <h1>Bitcoin wallet ( P2PKH )</h1>  
+      <div id="outputArea" aria-live="polite"></div>  
+      <div class="controls">  
+        <button id="nextBtn" class="action-btn">Generate Private Key</button>  
+        <button id="copyBtn" class="copy-btn" style="display:none">© Copy</button>  
+      </div>  
+    </div>  
+    <button id="restartBtn" class="restart-btn">Restart</button>
+    
+    <!-- Modal -->
+    <div id="modalOverlay" class="modal-overlay">
+      <div class="modal-content">
+        <button id="modalClose" class="modal-close">×</button>
+        <h2 class="modal-title">Wallet Data <hr></h2>
+        <div id="modalData"></div>
+      </div>
+    </div>
+  </div>    
+  <script type="module">  
+    import * as secp from "https://cdn.jsdelivr.net/npm/@noble/secp256k1@1.7.1/+esm";  
+    import { sha256 } from "https://cdn.jsdelivr.net/npm/@noble/hashes@1.4.0/sha256.js/+esm";  
+    import { ripemd160 } from "https://cdn.jsdelivr.net/npm/@noble/hashes@1.4.0/ripemd160.js/+esm";  
+  
+    const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";  
+    function base58Encode(buf) {  
+      const bytes = Array.from(buf);  
+      let digits = [0];  
+      for (let i = 0; i < bytes.length; ++i) {  
+        let carry = bytes[i];  
+        for (let j = 0; j < digits.length; ++j) {  
+          carry += digits[j] << 8;  
+          digits[j] = carry % 58;  
+          carry = (carry / 58) | 0;  
+        }  
+        while (carry) {  
+          digits.push(carry % 58);  
+          carry = (carry / 58) | 0;  
+        }  
+      }  
+      for (let k = 0; k < bytes.length && bytes[k] === 0; ++k) digits.push(0);  
+      return digits.reverse().map(d => ALPHABET[d]).join('');  
+    }  
+    function base58CheckEncode(payload) {  
+      const checksum = sha256(sha256(payload)).slice(0, 4);  
+      const out = new Uint8Array(payload.length + 4);  
+      out.set(payload, 0);  
+      out.set(checksum, payload.length);  
+      return base58Encode(out);  
+    }  
+  
+    let privBytes = null, pubBytes = null, address = null, wif = null;  
+    let step = 0;  
+    let currentValue = "";  
+  
+    const outputArea = document.getElementById('outputArea');  
+    const nextBtn = document.getElementById('nextBtn');  
+    const restartBtn = document.getElementById('restartBtn');  
+    const copyBtn = document.getElementById('copyBtn');
+    const showModalBtn = document.getElementById('showModalBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalClose = document.getElementById('modalClose');
+    const modalData = document.getElementById('modalData');  
+  
+    function createField(label, value) {  
+      const wrapper = document.createElement('div');  
+      wrapper.className = 'field';  
+      wrapper.innerHTML = `  
+        <label>${label}</label>  
+        <div class="value">${value}</div>  
+      `;  
+      return wrapper;  
+    }  
+
+    function createFieldWithCopy(label, value) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'field';
+      wrapper.innerHTML = `
+        <label>${label}</label>
+        <div class="value">${value}</div>
+        <button class="field-copy-btn" data-value="${value}">Copy</button>
+      `;
+      return wrapper;
+    }
+  
+    function showSingle(label, value) {  
+      outputArea.innerHTML = '';  
+      const field = createField(label, value);  
+      outputArea.appendChild(field);  
+      requestAnimationFrame(() => field.classList.add('visible'));  
+      currentValue = value;  
+      copyBtn.style.display = 'inline-block';  
+    }  
+  
+    async function showAllStacked() {  
+      outputArea.innerHTML = '';  
+      const container = document.createElement('div');  
+      container.className = 'stacked';  
+      const fPriv = createFieldWithCopy('Private Key (hex):', secp.utils.bytesToHex(privBytes));  
+      const fPub = createFieldWithCopy('Public Key (compressed, hex):', secp.utils.bytesToHex(pubBytes));  
+      const fAddr = createFieldWithCopy('P2PKH Address:', address);  
+      const fWif = createFieldWithCopy('WIF:', wif);  
+      [fPriv, fPub, fAddr, fWif].forEach(f => { container.appendChild(f); });  
+      outputArea.appendChild(container);  
+  
+      const fields = container.querySelectorAll('.field');  
+      for (let i = 0; i < fields.length; i++) {  
+        await new Promise(r => setTimeout(r, 280));  
+        fields[i].classList.add('visible');  
+      }  
+
+      // Add event listeners for individual copy buttons
+      container.querySelectorAll('.field-copy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const value = e.target.getAttribute('data-value');
+          navigator.clipboard.writeText(value);
+          const originalText = e.target.textContent;
+          e.target.textContent = 'Copied!';
+          setTimeout(() => {
+            e.target.textContent = originalText;
+          }, 1000);
+        });
+      });
+  
+      // FIXED: Show restart button dengan proper timing dan animation
+      nextBtn.style.display = 'none';  
+      copyBtn.style.display = 'none';
+      
+      // Show restart button with proper animation
+      restartBtn.style.display = 'inline-block';
+      // Show modal button when all data is generated
+      showModalBtn.classList.add('visible');
+      
+      // Delay untuk memastikan display sudah aktif sebelum menambah class visible
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          restartBtn.classList.add('visible');
+        });
+      });
+    }  
+  
+    // FIXED: Reset function dengan kondisi berbeda untuk restart vs initial load
+    let isInitialLoad = true;
+    
+    function resetAll() {  
+      privBytes = pubBytes = address = wif = null;  
+      step = 0;  
+      currentValue = "";  
+      
+      // FIXED: Hide restart button dengan proper animation
+      restartBtn.classList.remove('visible');
+      // Hide modal button
+      showModalBtn.classList.remove('visible');
+      setTimeout(() => {
+        restartBtn.style.display = 'none';
+      }, 400);
+      
+      // Animate out existing fields if any
+      const existingFields = outputArea.querySelectorAll('.field.visible');
+      if (existingFields.length > 0) {
+        // Animate fields out one by one
+        existingFields.forEach((field, index) => {
+          setTimeout(() => {
+            field.classList.remove('visible');
+          }, index * 120);
+        });
+        
+        // Clear output area after animation
+        setTimeout(() => {
+          outputArea.innerHTML = '';
+        }, existingFields.length * 120 + 300);
+      } else {
+        outputArea.innerHTML = '';
+      }
+      
+      copyBtn.style.display = 'none';
+      
+      // FIXED: Kondisi berbeda untuk initial load vs restart
+      if (isInitialLoad) {
+        // Initial load: langsung show button tanpa animasi
+        nextBtn.textContent = 'Generate Private Key';
+        nextBtn.disabled = false;
+        nextBtn.style.display = 'inline-block';
+        nextBtn.classList.remove('fade-out', 'fade-in');
+        isInitialLoad = false; // Set flag bahwa sudah bukan initial load
+      } else {
+        // Restart: dengan animasi fade dan delay 1 detik
+        nextBtn.classList.remove('fade-in');
+        nextBtn.classList.add('fade-out');
+        nextBtn.disabled = true;
+        
+        // Hide button completely first
+        setTimeout(() => {
+          nextBtn.style.display = 'none';
+          nextBtn.textContent = 'Generate Private Key';
+          
+          // Show and fade in after 1 second delay
+          setTimeout(() => {
+            nextBtn.style.display = 'inline-block';
+            nextBtn.classList.remove('fade-out');
+            
+            // Small delay to ensure display is applied before fade in
+            requestAnimationFrame(() => {
+              nextBtn.classList.add('fade-in');
+              nextBtn.disabled = false;
+            });
+          }, 1000);
+        }, 400);
+      }
+    }  
+  
+    nextBtn.addEventListener('click', async () => {  
+      if (step === 0) {  
+        privBytes = secp.utils.randomPrivateKey();  
+        showSingle('Private Key (hex):', secp.utils.bytesToHex(privBytes));  
+        step = 1;  
+        nextBtn.textContent = 'Generate Public Key';  
+      } else if (step === 1) {  
+        pubBytes = secp.getPublicKey(privBytes, true);  
+        showSingle('Public Key (compressed, hex):', secp.utils.bytesToHex(pubBytes));  
+        step = 2;  
+        nextBtn.textContent = 'Generate P2PKH Address';  
+      } else if (step === 2) {  
+        const sha = sha256(pubBytes);  
+        const ripe = ripemd160(sha);  
+        const payload = new Uint8Array(1 + ripe.length);  
+        payload[0] = 0x00;  
+        payload.set(ripe, 1);  
+        address = base58CheckEncode(payload);  
+        showSingle('P2PKH Address:', address);  
+        step = 3;  
+        nextBtn.textContent = 'Generate WIF';  
+      } else if (step === 3) {  
+        const wifPayload = new Uint8Array(1 + privBytes.length + 1);  
+        wifPayload[0] = 0x80;  
+        wifPayload.set(privBytes, 1);  
+        wifPayload[wifPayload.length - 1] = 0x01;  
+        wif = base58CheckEncode(wifPayload);  
+        showSingle('WIF:', wif);  
+        step = 4;  
+        nextBtn.textContent = 'Done';  
+      } else if (step === 4) {  
+        // LANGSUNG HIDE BUTTONS SEBELUM APAPUN!
+        nextBtn.style.display = 'none';  
+        copyBtn.style.display = 'none';
+        await showAllStacked();  
+      }  
+    });  
+  
+    copyBtn.addEventListener('click', () => {  
+      if (currentValue) {  
+        navigator.clipboard.writeText(currentValue);  
+        copyBtn.textContent = "Copied!";  
+        setTimeout(() => copyBtn.textContent = "© Copy", 1000);  
+      }  
+    });  
+    
+    // Modal functionality
+    function generateFullWalletData() {
+      if (!privBytes || !pubBytes || !address || !wif) return null;
+      
+      // Get uncompressed public key
+      const pubBytesUncompressed = secp.getPublicKey(privBytes, false);
+      
+      // Extract X and Y coordinates from uncompressed public key
+      const pubX = pubBytesUncompressed.slice(1, 33);
+      const pubY = pubBytesUncompressed.slice(33, 65);
+      
+      // Convert private key to decimal
+      const privDecimal = BigInt('0x' + secp.utils.bytesToHex(privBytes)).toString();
+      
+      return {
+        keyDecimal: privDecimal,
+        keyHex: secp.utils.bytesToHex(privBytes),
+        keyWif: wif,
+        pubKeyX: secp.utils.bytesToHex(pubX),
+        pubKeyY: secp.utils.bytesToHex(pubY),
+        pubKeyUncompressed: secp.utils.bytesToHex(pubBytesUncompressed),
+        pubKeyCompressed: secp.utils.bytesToHex(pubBytes),
+        address: address
+      };
+    }
+    
+    function showModal() {
+      const fullData = generateFullWalletData();
+      if (!fullData) return;
+      
+      modalData.innerHTML = `
+        <div class="modal-field">
+          <label>Private Key (Decimal):</label>
+          <div class="value">${fullData.keyDecimal}</div>
+        </div>
+        <div class="modal-field">
+          <label>Private Key (Hex):</label>
+          <div class="value">${fullData.keyHex}</div>
+        </div>
+        <div class="modal-field">
+          <label>Private Key (WIF):</label>
+          <div class="value">${fullData.keyWif}</div>
+        </div>
+        <div class="modal-field">
+          <label>Public Key X Coordinate:</label>
+          <div class="value">${fullData.pubKeyX}</div>
+        </div>
+        <div class="modal-field">
+          <label>Public Key Y Coordinate:</label>
+          <div class="value">${fullData.pubKeyY}</div>
+        </div>
+        <div class="modal-field">
+          <label>Public Key (Uncompressed):</label>
+          <div class="value">${fullData.pubKeyUncompressed}</div>
+        </div>
+        <div class="modal-field">
+          <label>Public Key (Compressed):</label>
+          <div class="value">${fullData.pubKeyCompressed}</div>
+        </div>
+        <div class="modal-field">
+          <label>Address (P2PKH):</label>
+          <div class="value">${fullData.address}</div>
+        </div>
+      `;
+      
+      modalOverlay.classList.add('visible');
+    }
+    
+    function hideModal() {
+      modalOverlay.classList.remove('visible');
+    }
+    
+    showModalBtn.addEventListener('click', showModal);
+    modalClose.addEventListener('click', hideModal);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        hideModal();
+      }
+    });
+  
+    restartBtn.addEventListener('click', resetAll);  
+    
+    // FIXED: Initial state - pastikan tombol restart tersembunyi
+    resetAll();  
+  </script>  
+</body>  
+</html>

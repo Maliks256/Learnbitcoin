@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    -webkit-tap-highlight-color: transparent;
+    background: white;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; /* Mencegah scrollbar saat teks muncul di tepi */
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 40px);
+    max-width: 800px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+    border: 1px solid black;
+}
+
+.modal.show {
+    opacity: 1;
+}
+
+#modalTitle {
+    color: black;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.modal-body {
+    min-height: 300px;
+    max-height: 50vh;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.modal-page {
+    display: none;
+}
+
+.modal-page.active {
+    display: block;
+}
+
+.modal-page h3 {
+    color: black;
+    font-size: 1.3em;
+    margin: 0 0 15px 0;
+    font-weight: bold;
+}
+
+.modal-page p {
+    font-size: 1.5em;
+    line-height: 1.6;
+    color: black;
+    margin: 0 0 12px 0;
+}
+
+.modal-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid black;
+}
+
+.nav-buttons button {
+    background-color: white;
+    color: #333;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin: 0 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.nav-buttons button:active {
+    transform: scale(0.95);
+}
+
+.nav-buttons button:disabled {
+    background-color: #f8f8f8;
+    color: #aaa;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+.checklist-button {
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-left: auto;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checklist-button:disabled {
+    background-color: #ddd;
+    border-color: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.checklist-button:not(:disabled) {
+    background-color: white;
+    color: #4CAF50;
+    border-color: #4CAF50;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.checklist-button:not(:disabled):active {
+    transform: scale(0.95);
+}
+
+/* LOADING SCREEN */
+.loading-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.loading-screen.show {
+    display: flex;
+}
+
+.loading-content {
+    text-align: center;
+    position: relative;
+    z-index: 10; /* Pastikan konten loading di atas teks acak */
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    position: relative;
+}
+
+.spinner-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 4px solid rgba(0, 0, 0, 0.2);
+    border-top-color: black;
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.spinner-ring:nth-child(2) {
+    width: 60px;
+    height: 60px;
+    top: 10px;
+    left: 10px;
+    animation-delay: 0.1s;
+    border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(3060deg); }
+}
+
+.loading-text {
+    color: black;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.progress-container {
+    width: 300px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #333, #666);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.progress-percent {
+    color: black;
+    font-size: 48px;
+    font-weight: bold;
+    margin-top: 20px;
+    letter-spacing: 2px;
+}
+
+/* Styling untuk animasi teks */
+#randomTextContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Agar tidak bisa diklik */
+    z-index: 5; /* Di bawah konten loading */
+}
+
+.random-word {
+    position: absolute;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 24px;
+    animation: fadeInOut 1.5s ease-in-out forwards;
+    white-space: nowrap;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(var(--start-rot));
+    }
+    20% {
+        opacity: 1;
+        transform: scale(1) rotate(var(--mid-rot));
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.2) rotate(var(--end-rot));
+    }
+}
+</style>
+</head>
+<body>
+
+<div id="termsModal" class="modal">
+    <h2 id="modalTitle">Syarat dan Ketentuan (1/3)</h2>
+    <div class="modal-body">
+        <div class="modal-page active" data-page="1">
+            <h3>Disclaimer</h3>
+            <p>1. Informasi yang ada di website ini tidak 100% benar, karena bersumber dari AI</p>
+            <p>2. Saya tidak bertanggung jawab atas kesalahan informasi yang disajikan. Selalu verifikasi informasi penting dari sumber terpercaya.</p>
+            <p>3. Metode sign, hashing dll di website ini tidak persis dengan bitcoin asli</p>
+            <p>4. brute force key adalah aktivitas ilegal, menu brute force pada website ini bertujuan hanya untuk edukasi saja. ( Tidak memakai blockchain asli / mainnet ) </p>
+        </div>
+        <div class="modal-page" data-page="2">
+            <h3>Kebijakan Privasi & Data Pengguna</h3>
+            <p>1. Tidak ada data pengguna yang dikirim ke server.</p>
+            <p>2. Walau begitu, kamu tetap harus hati" saat ingin mencoba sign message, karna memerlukan private key bitcoin mainnet (WIF)</p>
+            <p>3. Gunakan private key yg digenerate dari website ini</p>
+            <p>4. Jangan pernah memasukkan private key yang dipakai untuk menyimpan bitcoin di website ini</p>
+        </div>
+        <div class="modal-page" data-page="3">
+            <h3>Always Dyor</h3>
+            <p>1. saya tidak bertanggung jawab atas kerugian langsung maupun tidak langsung yang timbul akibat penggunaan informasi dari website ini.</p>
+            <p>2. Dengan menekan tombol "Saya Setuju", Anda menyatakan telah membaca, memahami, dan menyetujui SEMUA syarat dan ketentuan yang berlaku di website ini.</p>
+        </div>
+    </div>
+    <div class="modal-controls">
+        <div class="nav-buttons">
+            <button id="prevBtn" onclick="changePage(-1)" disabled>&lt;</button>
+            <button id="nextBtn" onclick="changePage(1)">&gt;</button>
+        </div>
+        <button id="acceptBtn" class="checklist-button" onclick="closeModal()" disabled> Saya Setuju</button>
+    </div>
+</div>
+
+<div id="loadingScreen" class="loading-screen">
+    <div id="randomTextContainer"></div>
+    
+    <div class="loading-content">
+        <div class="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+        </div>
+        <div class="loading-text">Loading...</div>
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="progressPercent" class="progress-percent">0%</div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('termsModal');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const acceptBtn = document.getElementById('acceptBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const pages = document.querySelectorAll('.modal-page');
+    let currentPage = 1;
+    const totalPages = 3;
+
+    const randomWords = [
+        'Nonce', 'Hash', 'Secp256k1', 'Ripemd-160', 'PoW', 'sha-256', 'ecc',
+        'difficulty', 'Reward', 'Block', 'genesis', 'chain', 'hardfork',
+        'softfork', 'node', 'miner', 'wallet', 'utxo', 'pubkey', 'key',
+        'wif', 'curve'
+    ];
+
+    function updatePageDisplay() {
+        pages.forEach(page => page.classList.remove('active'));
+        const activePage = document.querySelector(`.modal-page[data-page="${currentPage}"]`);
+        if (activePage) activePage.classList.add('active');
+        modalTitle.textContent = `Syarat dan Ketentuan (${currentPage}/${totalPages})`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+        acceptBtn.disabled = currentPage !== totalPages;
+    }
+
+    function changePage(direction) {
+        let newPage = currentPage + direction;
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            updatePageDisplay();
+        }
+    }
+
+    function showModal() {
+        modal.style.display = 'block';
+        setTimeout(() => modal.classList.add('show'), 10);
+        updatePageDisplay();
+    }
+
+    function closeModal() {
+        if (!acceptBtn.disabled) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                showLoadingScreen();
+            }, 500);
+        }
+    }
+    
+    // === FUNGSI BARU: Memulai animasi kata-kata acak ===
+    function startRandomWordAnimation() {
+        const container = document.getElementById('randomTextContainer');
+        const maxWordsOnScreen = 7;
+        
+        const createWord = () => {
+            if (container.children.length >= maxWordsOnScreen) return;
+
+            const word = document.createElement('span');
+            word.className = 'random-word';
+            word.textContent = randomWords[Math.floor(Math.random() * randomWords.length)];
+
+            word.style.top = `${Math.random() * 95}vh`;
+            word.style.left = `${Math.random() * 95}vw`;
+            
+            const rotation = (Math.random() - 0.5) * 60;
+            word.style.setProperty('--start-rot', `${rotation - 20}deg`);
+            word.style.setProperty('--mid-rot', `${rotation}deg`);
+            word.style.setProperty('--end-rot', `${rotation + 20}deg`);
+
+            container.appendChild(word);
+
+            setTimeout(() => {
+                word.remove();
+            }, 1500); // Sesuai durasi animasi di CSS
+        };
+
+        // Mengembalikan ID dari interval agar bisa dihentikan nanti
+        return setInterval(createWord, 200); 
+    }
+
+    // === MODIFIKASI: Fungsi loading screen ===
+    function showLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        loadingScreen.classList.add('show');
+
+        // Mulai animasi kata-kata acak dan simpan ID intervalnya
+        const wordAnimationInterval = startRandomWordAnimation();
+
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress >= 100) {
+                progress = 100;
+                
+                // Hentikan kedua interval (progress bar dan kata acak)
+                clearInterval(progressInterval);
+                clearInterval(wordAnimationInterval);
+                
+                // Tunggu sebentar lalu redirect
+                setTimeout(() => {
+                    window.location.href = 'Home.html';
+                }, 500); 
+
+            }
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.floor(progress) + '%';
+        }, 150);
+    }
+
+    setTimeout(showModal, 3);
+</script>
+
+</body>
+</html>

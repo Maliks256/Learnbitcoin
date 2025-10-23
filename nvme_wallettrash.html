@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tombol Kembali Fixed</title>
+    <style>
+        body {
+            font-family: monospace;
+            margin: 0;
+            padding: 0;
+            height: 200vh;
+        }
+
+        /* Semua teks kode */
+        pre, code {
+            font-family: monospace;
+        }
+
+        /* List penjelasan kode tetap monospace */
+        ol, li {
+            font-family: monospace;
+        }
+
+        /* Judul khusus (jika mau konsisten dengan monospace) */
+        h1 {
+            font-family: monospace;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #000000;
+            font-size: 24px;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 1000;
+            outline: none;
+        }
+
+        .back-button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .content {
+            margin-top: 35vh;
+            padding-left: 20px;
+            margin-right: 25%;
+        }
+
+        .page-title {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: monospace;
+            font-size: 2em;
+            color: #333;
+            white-space: nowrap;
+            z-index: 999;
+        }
+
+        .section h2 {
+            font-family: monospace;
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            margin-left: 0;
+        }
+
+        .box {
+            position: relative;
+            width: 100%;
+            min-height: 100px;
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            box-sizing: border-box;
+            padding: 15px;
+            padding-right: 65px;
+            font-family: monospace;
+            text-align: left;
+            font-size: 1em;
+            line-height: 1.5;
+            color: #333;
+            word-wrap: break-word;
+        }
+        
+        .action-button {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .action-button:focus {
+            outline: none;
+        }
+
+        .action-button img {
+            width: 120%;
+            height: 120%;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .action-button img.image-disappear {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        @keyframes reappear-animation {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .action-button img.image-reappear {
+            animation: reappear-animation 0.5s ease-out forwards;
+        }
+
+        /* === MODAL STYLES (Reusable) === */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            position: absolute;
+            top: 2%;
+            left: 2%;
+            right: 2%;
+            bottom: 2%;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            border: 1px solid #000000;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .close-button {
+            position: fixed;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            border: none;
+            z-index: 2002;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .close-button:focus {
+            outline: none;
+        }
+
+        /* === MODAL ITEM STYLES === */
+        .modal-item {
+            margin-bottom: 20px;
+        }
+
+        .modal-item h3 {
+            margin: 0 0 10px 0;
+            font-family: monospace;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+
+        .modal-item h4 {
+            margin: 5px 0 10px 0;
+            font-family: monospace;
+            font-size: 1em;
+            color: #1a1a1a;
+        }
+
+        .modal-item img.modal-image {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            display: block;
+            margin: 8px 0;
+        }
+
+        .modal-item p {
+            font-family: monospace;
+            font-size: 1.1em;
+            color: #333;
+            line-height: 1.6;
+            margin: 8px 0 10px 0;
+        }
+
+        .modal-item hr {
+            border: 0;
+            height: 1px;
+            background-color: #ccc;
+            margin: 15px 0 20px 0;
+            width: 100%;
+        }
+
+        /* === COPY BUTTON === */
+        .copy-btn {
+            position: absolute;
+            top: 100px;
+            right: 5px;
+            background-color: white;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .copy-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* === COPY BUTTON UNTUK KODE === */
+        .copy-code-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .copy-code-btn:hover {
+            background-color: white;
+        }
+
+        .copy-container {
+            position: relative;
+        }
+
+        /* === KOTAK KODE === */
+        .code-box {
+            position: relative;
+            background-color: #FFFCB8;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: #333;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        /* === ANIMASI "COPIED" === */
+        .copied-toast {
+            position: fixed;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            z-index: 3000;
+            opacity: 0;
+            transition: top 0.4s ease, opacity 0.4s ease;
+        }
+
+        .copied-toast.show {
+            top: 20px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast Notifikasi "Copied" -->
+    <div class="copied-toast" id="copiedToast">Tersalin ke clipboard!</div>
+
+    <!-- Tombol Kembali -->
+    <a href="nvme_listp.html" class="back-button">></a>
+
+    <!-- Judul -->
+    <div class="page-title" style="color: #37353E;">Generate Wallet Dengan Ribet Hehe</div>
+
+    <!-- Konten -->
+    <div class="content">
+        <div class="section">
+            <h2>Install this :</h2>
+            <div class="box">
+                pip install ecdsa<br>pip install pycryptodome<br>pip install base58<br><br>... >
+                <button class="action-button" data-modal="modal1"><img src="move.jpg" alt="Info"></button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Generate key</h2>
+            <div class="box">
+            	Membuat private key<br>menggunakan python<br><br><br>detail >
+                <button class="action-button" data-modal="modal2"><img src="move.jpg" alt="Info"></button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Generate publik key ( compressed )</h2>
+            <div class="box">
+            	Membuat publik key membutuhkan private key, jadi pastikan kamu simpan hasil generate key tadi ya<br><br>... >
+                <button class="action-button" data-modal="modal3"><img src="move.jpg" alt="Info"></button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Gpublik key ( hash )</h2>
+            <div class="box">
+            	Publik key compressed di hash menggunakan sha256 dan Ripemd-160 
+            <br><br> <br>detail >
+                <button class="action-button" data-modal="modal4"><img src="move.jpg" alt="Info"></button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Generate bitcoin address ( P2PKH ) </h2>
+            <div class="box">
+            	Final! membuat bitcoin address yg valid. <br> bisa dicek di exploler bitcoin. <br>bisa diisi saldo bitcoin ( tidak disarankan, karena masalah privacy ) <br><br> ... >
+                <button class="action-button" data-modal="modal5"><img src="move.jpg" alt="Info"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL 1: Install this ============ -->
+    <div class="modal-overlay" id="modal1">
+        <span class="close-button" onclick="closeModal('modal1')">&times;</span>
+        <div class="modal-content">
+            <div class="modal-item">
+                <h3>1. Install pydroid3</h3>
+                <img src="pydroid3.jpg" alt="Pydroid 3" class="modal-image">
+                <p>Cari aja di playstore.</p>
+                <hr>
+            </div>
+            <div class="modal-item">
+                <h3>2. Klik hamburger menu</h3>
+                <img src="klikhamb.jpg" alt="Klik Hamburger" class="modal-image">
+                <p><!-- Isi deskripsi nanti di sini --></p>
+                <hr>
+            </div>
+            <div class="modal-item">
+                <h3>3. Klik terminal</h3>
+                <img src="klikterminal.jpg" alt="Klik Terminal" class="modal-image">
+                <p><!-- Isi deskripsi nanti di sini --></p>
+                <hr>
+            </div>
+            <div class="modal-item">
+                <h3>4. Hold</h3>
+                <img src="holdak.jpg" alt="Hold" class="modal-image">
+                <p><!-- Isi deskripsi nanti di sini --></p>
+                <hr>
+            </div>
+            <div class="modal-item">
+                <h3>5. Paste</h3>
+                <img src="pastepip.jpg" alt="Paste" class="modal-image">
+                <p><!-- Isi deskripsi nanti di sini --></p>
+                <hr>
+            </div>
+            <div class="modal-item">
+                <div class="copy-container">
+                    <h3>6. Salin dulu</h3>
+                    <button class="copy-btn" onclick="copyPipCommands()">Copy</button>
+                </div>
+                <h4>Salin text ini dulu sebelum paste di terminal</h4>
+                <p>pip install ecdsa</p>
+                <p>pip install pycryptodome</p>
+                <p>pip install base58</p>
+                <hr>
+            </div>
+            <div class="modal-item">
+                <h3>7. Tunggu</h3>
+                <img src="resultpip.jpg" alt="Hasil Install" class="modal-image">
+                <p>Kalo hasilnya seperti yang difoto berarti berhasil install. Oh iya, kalo setelah paste tidak ada respon, coba klik tombol Enter atau tab.</p>
+                <hr>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL 2: Generate key ============ -->
+    <div class="modal-overlay" id="modal2">
+        <span class="close-button" onclick="closeModal('modal2')">&times;</span>
+        <div class="modal-content">
+            <div class="modal-item">
+                <h3>1. Buat file bernama generatekey.py</h3>
+                <hr>
+                <p>Masuk ke aplikasi pydroid3 dan tekan lama area kosong, di pojok kanan atas ada tombol buat paste, dan paste kan kode dibawah ini :</p>
+                <img src="generatekeyp.jpg" alt="Buka Script" class="modal-image">
+                
+                <!-- Kotak Kode dengan Tombol Copy -->
+                <div class="code-container">
+                    <div class="code-box" id="codeBlock1">
+                        <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>import os
+import binascii
+
+# Urutan kurva secp256k1
+SECP256K1_ORDER = int('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 16)
+
+def generate_private_key():
+    while True:
+        # Generate 32 bytes random (256-bit)
+        private_key = os.urandom(32)
+        private_key_int = int(binascii.hexlify(private_key).decode(), 16)
+
+        # Pastikan private key bukan nol dan lebih kecil dari order secp256k1
+        if 0 < private_key_int < SECP256K1_ORDER:
+            return binascii.hexlify(private_key).decode()
+
+# Generate
+priv_key_hex = generate_private_key()
+print("Private Key (hex):", priv_key_hex)</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-item">
+                <h3>2. Jalankan code</h3>
+                <hr>
+                <img src="rungkey.jpg" alt="Jalankan Fungsi" class="modal-image">
+                <p> Jalankan code dengan menekan tombol " play " biasanya berada di posisi bawah berwarna kuning</p>
+                <p> contoh output : <strong> 62a64a3fedb75af9b6043d4b9f7ad83229b14637452ef95480c6b450ee47293e </strong>
+                
+                Simpan output di catatan dengan cara : tekan di area kosong dan klik copy all, paste di apps notes kalian. 
+                <p> --- </p>
+                <p> -- </p>
+                <p> - </p>
+            </div>
+            <div class="modal-item">
+                <h3>3. Informasi ( optional to read )</h3>
+                <hr>
+                <div style="background-color:white; padding:20px; border-radius:8px;">
+                    <h2></h2>
+                    <h3>1. Impor Modul</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+import os
+import binascii
+                    </div>
+                    <p>
+                    os: Modul ini menyediakan fungsi untuk berinteraksi dengan sistem operasi. Dalam kode ini, fungsi os.urandom() digunakan untuk menghasilkan bilangan acak yang aman secara kriptografis (cryptographically secure random number).<br>
+                    binascii: Modul ini digunakan untuk mengonversi data biner menjadi representasi heksadesimal (hex) dan sebaliknya. Fungsi binascii.hexlify() digunakan untuk mengubah data biner menjadi string heksadesimal.
+                    </p>
+
+                    <h3>2. Definisi Konstanta SECP256K1_ORDER</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+SECP256K1_ORDER = int('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A0
+3BBFD25E8CD0364141', 16)
+                    </div>
+                    <p>
+                    SECP256K1_ORDER: Ini adalah order (urutan) dari kurva eliptik secp256k1, yang merupakan bilangan prima besar. Dalam konteks kriptografi, order ini menentukan batas atas untuk kunci pribadi yang valid. Nilai ini didefinisikan dalam format heksadesimal dan dikonversi ke integer menggunakan int(...,16).<br>
+                    Fungsi: Memastikan bahwa kunci pribadi yang dihasilkan berada dalam rentang yang valid untuk kurva secp256k1 (yaitu, lebih besar dari 0 dan lebih kecil dari order).
+                    </p>
+
+                    <h3>3. Fungsi generate_private_key</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+def generate_private_key():
+    while True:  # Generate 32 bytes random (256-bit)
+        private_key = os.urandom(32)
+        private_key_int = int(binascii.hexlify(private_key).decode(), 16)
+                    </div>
+                    <p>
+                    Fungsi ini adalah inti dari kode, yang bertugas menghasilkan kunci pribadi yang valid. 
+                    <ul>
+                        <li><strong>Loop while True:</strong> Memastikan kunci yang dihasilkan memenuhi kriteria tertentu (tidak nol dan lebih kecil dari SECP256K1_ORDER). Jika tidak valid, loop terus menghasilkan kunci baru.</li>
+                        <li><strong>Menghasilkan kunci acak:</strong> <code>os.urandom(32)</code> menghasilkan 32 byte (256 bit) data acak yang aman secara kriptografis, disimpan dalam <code>private_key</code>.</li>
+                        <li><strong>Konversi ke integer:</strong> <code>binascii.hexlify(private_key)</code> mengubah biner menjadi string heksadesimal, <code>.decode()</code> mengubah byte string ke string biasa, dan <code>int(...,16)</code> mengubah heksadesimal menjadi integer.</li>
+                        <li><strong>Validasi kunci:</strong> <code>if 0 < private_key_int < SECP256K1_ORDER:</code> Memeriksa kunci tidak nol dan lebih kecil dari order secp256k1. Jika valid, dikembalikan dalam format heksadesimal.</li>
+                    </ul>
+                    </p>
+
+                    <h3>4. Eksekusi dan Output</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+priv_key_hex = generate_private_key()
+print("Private Key(hex):", priv_key_hex)
+                    </div>
+                    <p>
+                    Memanggil fungsi <code>generate_private_key()</code> untuk menghasilkan kunci pribadi dan mencetaknya dalam format heksadesimal ke layar dengan pesan "Private Key(hex):".
+                    </p>
+                </div>
+                <p><!-- Isi deskripsi nanti di sini --></p>
+                <hr>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL 3: Generate publik key ============ -->
+    <div class="modal-overlay" id="modal3">
+        <span class="close-button" onclick="closeModal('modal3')">&times;</span>
+        <div class="modal-content">
+            <div class="modal-item">
+                <h3>1. Buat file terpisah bernama: generatepublikkey.py</h3>
+                <hr>
+                <p> Masuk lagi ke apps pydroid3 dan paste code dibawah ini, lalu run dan paste private key yang sudah di generate tadi di terminal, simpan output di catatan, publik key dibutuhin buat next step.</p>
+                <p> <strong> contoh input : </strong>62a64a3fedb75af9b6043d4b9f7ad83229b14637452ef95480c6b450ee47293e
+                <p> <strong> contoh output : </strong>03e36d3801457d0d10be4ac99522f8ef0dd40c1180ac2768dcfc496aab2bef79e5
+                <!-- Kotak Kode dengan Tombol Copy -->
+                <div class="code-container">
+                    <div class="code-box" id="codeBlock2">
+                        <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>import binascii
+from ecdsa import SigningKey, SECP256k1
+
+# ----------------------------
+# Input Private Key dari User
+# ----------------------------
+priv_key_hex = input("Masukkan Private Key (hex): ").strip()
+try:
+    private_key_bytes = bytes.fromhex(priv_key_hex)
+    if len(private_key_bytes) != 32:
+        raise ValueError("Private key harus 32 byte (64 hex karakter).")
+except ValueError as e:
+    print("Error:", e)
+    exit()
+
+# ----------------------------
+# Generate Compressed Public Key
+# ----------------------------
+sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
+vk = sk.verifying_key
+
+y_parity = vk.to_string()[31] % 2  # byte terakhir Y
+prefix = b'\x02' if y_parity == 0 else b'\x03'
+compressed_pubkey_bytes = prefix + vk.to_string()[:32]
+compressed_pubkey_hex = binascii.hexlify(compressed_pubkey_bytes).decode()
+
+print("Compressed Public Key (hex):", compressed_pubkey_hex)</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-item">
+                <h3>2. Informasi ( optional to read )</h3>
+                <hr>
+                <div style="background-color:white; padding:20px; border-radius:8px;">
+                    <h2>Penjelasan Detail Kode</h2>
+
+                    <h3>1. Impor Modul</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+import binascii
+from ecdsa import SigningKey, SECP256k1
+                    </div>
+                    <p>
+                    binascii: Modul ini digunakan untuk mengonversi data biner ke format heksadesimal dan sebaliknya. Dalam kode ini, <code>binascii.hexlify()</code> digunakan untuk mengubah kunci publik terkompresi dari format biner ke string heksadesimal.<br>
+                    ecdsa: Modul Python untuk mendukung algoritma ECDSA (Elliptic Curve Digital Signature Algorithm).<br>
+                    SigningKey: Kelas untuk merepresentasikan kunci pribadi dan melakukan operasi tanda tangan.<br>
+                    SECP256k1: Objek yang mendefinisikan parameter kurva eliptik secp256k1, yang digunakan dalam Bitcoin dan Ethereum.
+                    </p>
+
+                    <h3>2. Input Private Key dari Pengguna</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+priv_key_hex = input("Masukkan Private Key (hex): ").strip()
+try:
+    private_key_bytes = bytes.fromhex(priv_key_hex)
+    if len(private_key_bytes) != 32:
+        raise ValueError("Private key harus 32 byte (64 hex karakter).")
+except ValueError as e:
+    print("Error:", e)
+    exit()
+                    </div>
+                    <p>
+                    Fungsi Bagian Ini:<br>
+                    Meminta pengguna untuk memasukkan kunci pribadi dalam format heksadesimal (contoh: 7a3b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b).<br>
+                    <code>.strip()</code>: Menghapus spasi atau karakter newline yang tidak diinginkan dari input.<br>
+                    <code>bytes.fromhex(priv_key_hex)</code>: Mengonversi string heksadesimal menjadi data biner (bytes). Misalnya, string '0102' menjadi b'\x01\x02'.<br>
+                    Validasi:<br>
+                    Memeriksa apakah panjang kunci pribadi dalam format biner adalah 32 byte (setara dengan 64 karakter heksadesimal, karena 1 byte = 2 karakter hex).<br>
+                    Jika tidak valid (bukan hex atau panjang tidak 32 byte), kode akan menampilkan pesan kesalahan dan keluar (<code>exit()</code>).
+                    </p>
+
+                    <h3>3. Menghasilkan Kunci Publik Terkompresi</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
+vk = sk.verifying_key
+                    </div>
+                    <p>
+                    <code>sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)</code>: Membuat objek SigningKey (kunci pribadi) dari data biner kunci pribadi menggunakan kurva secp256k1.<br>
+                    <code>vk = sk.verifying_key</code>: Menghasilkan objek VerifyingKey (kunci publik) dari kunci pribadi.<br>
+                    Kunci publik dihasilkan dengan mengalikan generator point dari kurva secp256k1 dengan nilai integer kunci pribadi, sesuai dengan matematika kurva eliptik.
+                    </p>
+
+                    <h3>4. Membuat Kunci Publik Terkompresi</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+y_parity = vk.to_string()[31] % 2  # byte terakhir Y
+prefix = b'\x02' if y_parity == 0 else b'\x03'
+compressed_pubkey_bytes = prefix + vk.to_string()[:32]
+compressed_pubkey_hex = binascii.hexlify(compressed_pubkey_bytes).decode()
+                    </div>
+                    <p>
+                    Penjelasan Proses Kompresi:<br>
+                    Kunci publik dalam format tidak terkompresi (uncompressed) terdiri dari koordinat (x, y) dari titik pada kurva eliptik, masing-masing 32 byte. Total 65 byte (1 byte prefiks 0x04 + 32 byte x + 32 byte y).<br>
+                    Dalam format terkompresi, hanya koordinat x (32 byte) yang disimpan, ditambah 1 byte prefiks yang menunjukkan paritas (genap atau ganjil) dari koordinat y, sehingga panjang menjadi 33 byte.<br>
+                    Langkah-langkah:<br>
+                    - <code>vk.to_string()</code>: Mengembalikan kunci publik biner (64 byte, x dan y).<br>
+                    - <code>vk.to_string()[31] % 2</code>: Mengambil byte terakhir dari y dan hitung paritas (genap/ganjil).<br>
+                    - Prefiks: 0x02 jika y genap, 0x03 jika y ganjil.<br>
+                    - <code>prefix + vk.to_string()[:32]</code>: Membuat kunci publik terkompresi (33 byte).<br>
+                    - <code>binascii.hexlify(compressed_pubkey_bytes).decode()</code>: Mengonversi ke string heksadesimal (66 karakter).
+                    </p>
+
+                    <h3>5. Output</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+print("Compressed Public Key (hex):", compressed_pubkey_hex)
+                    </div>
+                    <p>
+                    Mencetak kunci publik terkompresi dalam format heksadesimal ke layar. Output berupa string heksadesimal sepanjang 66 karakter (1 byte prefiks + 32 byte koordinat x).
+                    </p>
+                </div>
+                <p><!-- Isi deskripsi nanti di sini --></p>
+                <hr>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL 4: Hash Public Key ============ -->
+    <div class="modal-overlay" id="modal4">
+        <span class="close-button" onclick="closeModal('modal4')">&times;</span>
+        <div class="modal-content">
+            <div class="modal-item">
+                <h3>1. Buat file bernama: Gpublikkeyhash.py</h3>
+                <hr>
+                <p>Masuk lagi ke apps pydroid3 dan paste code dibawah ini, lalu run dan paste publik key compressed yang sudah di generate tadi, lalu simpan output di catatan, publik key hash dibutuhin buat next step.</p>
+                <p> <strong> contoh input : </strong> 03e36d3801457d0d10be4ac99522f8ef0dd40c1180ac2768dcfc496aab2bef79e5
+                <p> <strong> contoh output : </strong> df5e381bf348b646c23dc6e012f18bb65d388500
+                <!-- Kotak Kode dengan Tombol Copy -->
+                <div class="code-container">
+                    <div class="code-box" id="codeBlock3">
+                        <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>import binascii
+import hashlib
+from Crypto.Hash import RIPEMD160
+
+# ----------------------------
+# Input Compressed Public Key
+# ----------------------------
+compressed_pubkey_hex = input("Masukkan Compressed Public Key (hex): ").strip()
+try:
+    compressed_pubkey_bytes = bytes.fromhex(compressed_pubkey_hex)
+    if len(compressed_pubkey_bytes) != 33:
+        raise ValueError("Compressed public key harus 33 byte (66 hex karakter).")
+except ValueError as e:
+    print("Error:", e)
+    exit()
+
+# ----------------------------
+# Step 1: SHA-256
+# ----------------------------
+sha256_hash = hashlib.sha256(compressed_pubkey_bytes).digest()
+
+# ----------------------------
+# Step 2: RIPEMD-160
+# ----------------------------
+ripemd160 = RIPEMD160.new()
+ripemd160.update(sha256_hash)
+pubkey_hash_bytes = ripemd160.digest()
+pubkey_hash_hex = binascii.hexlify(pubkey_hash_bytes).decode()
+
+print("Public Key Hash (RIPEMD-160, hex):", pubkey_hash_hex)</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-item">
+                <h3>2. Informasi ( optional to read )</h3>
+                <hr>
+                <div style="background-color:white; padding:20px; border-radius:8px;">
+                    <h2>Penjelasan Detail Kode</h2>
+
+                    <h3>1. Impor Modul</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+import binascii
+import hashlib
+from Crypto.Hash import RIPEMD160
+                    </div>
+                    <p>
+                    binascii: Modul untuk mengonversi data biner ke format heksadesimal dan sebaliknya. Digunakan untuk mengubah hash kunci publik ke string heksadesimal.<br>
+                    hashlib: Modul standar Python untuk algoritma hash kriptografis, seperti SHA-256, yang digunakan di sini.<br>
+                    Crypto.Hash.RIPEMD160: Modul dari pustaka pycryptodome untuk algoritma hash RIPEMD-160, yang umum digunakan dalam pembuatan alamat Bitcoin. Anda perlu menginstal pustaka ini dengan perintah: <code>pip install pycryptodome</code>
+                    </p>
+
+                    <h3>2. Input Compressed Public Key dari Pengguna</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+compressed_pubkey_hex = input("Masukkan Compressed Public Key (hex): ").strip()
+try:
+    compressed_pubkey_bytes = bytes.fromhex(compressed_pubkey_hex)
+    if len(compressed_pubkey_bytes) != 33:
+        raise ValueError("Compressed public key harus 33 byte (66 hex karakter).")
+except ValueError as e:
+    print("Error:", e)
+    exit()
+                    </div>
+                    <p>
+                    Fungsi Bagian Ini:<br>
+                    Meminta pengguna untuk memasukkan compressed public key dalam format heksadesimal (contoh: 02xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx).<br>
+                    <code>.strip()</code>: Menghapus spasi atau karakter newline yang tidak diinginkan dari input.<br>
+                    <code>bytes.fromhex(compressed_pubkey_hex)</code>: Mengonversi string heksadesimal menjadi data biner (bytes). Misalnya, string '02abc...' menjadi b'\x02\xab\xc...'.<br>
+                    Validasi:<br>
+                    Memeriksa apakah panjang kunci publik terkompresi dalam format biner adalah 33 byte (setara dengan 66 karakter heksadesimal, karena 1 byte = 2 karakter hex).<br>
+                    Kunci publik terkompresi terdiri dari 1 byte prefiks (0x02 atau 0x03) dan 32 byte koordinat x.<br>
+                    Jika input tidak valid (bukan hex atau panjang tidak 33 byte), kode menampilkan pesan kesalahan dan keluar (<code>exit()</code>).
+                    </p>
+
+                    <h3>3. Langkah 1: Hash SHA-256</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+sha256_hash = hashlib.sha256(compressed_pubkey_bytes).digest()
+                    </div>
+                    <p>
+                    Fungsi Bagian Ini:<br>
+                    Menggunakan algoritma SHA-256 untuk menghash kunci publik terkompresi (33 byte).<br>
+                    <code>hashlib.sha256(compressed_pubkey_bytes)</code>: Membuat objek hash SHA-256 dari data kunci publik.<br>
+                    <code>.digest()</code>: Mengembalikan hasil hash dalam format biner (32 byte).<br>
+                    Mengapa SHA-256?:<br>
+                    SHA-256 adalah algoritma hash yang aman secara kriptografis, menghasilkan output 256-bit (32 byte) yang unik untuk input tertentu. Ini adalah langkah pertama dalam proses hashing untuk membuat alamat Bitcoin.
+                    </p>
+
+                    <h3>4. Langkah 2: Hash RIPEMD-160</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+ripemd160 = RIPEMD160.new()
+ripemd160.update(sha256_hash)
+pubkey_hash_bytes = ripemd160.digest()
+pubkey_hash_hex = binascii.hexlify(pubkey_hash_bytes).decode()
+                    </div>
+                    <p>
+                    Fungsi Bagian Ini:<br>
+                    Menggunakan algoritma RIPEMD-160 untuk menghash hasil dari SHA-256.<br>
+                    RIPEMD160.new(): Membuat objek hash RIPEMD-160.<br>
+                    ripemd160.update(sha256_hash): Memasukkan hasil hash SHA-256 (32 byte) sebagai input untuk RIPEMD-160.<br>
+                    ripemd160.digest(): Mengembalikan hasil hash dalam format biner (20 byte).<br>
+                    <code>binascii.hexlify(pubkey_hash_bytes).decode()</code>: Mengonversi hasil hash RIPEMD-160 (20 byte) ke string heksadesimal (40 karakter).<br>
+                    Mengapa RIPEMD-160?:<br>
+                    RIPEMD-160 menghasilkan hash yang lebih pendek (160-bit atau 20 byte) dibandingkan SHA-256 (256-bit), yang membuat alamat lebih ringkas tanpa mengorbankan keamanan yang signifikan.<br>
+                    Kombinasi SHA-256 dan RIPEMD-160 adalah standar dalam pembuatan alamat Bitcoin untuk menghasilkan public key hash (hash160).
+                    </p>
+
+                    <h3>5. Output</h3>
+                    <div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+print("Public Key Hash (RIPEMD-160, hex):", pubkey_hash_hex)
+                    </div>
+                    <p>
+                    Mencetak hasil hash kunci publik (public key hash) dalam format heksadesimal ke layar. Outputnya adalah string heksadesimal sepanjang 40 karakter (20 byte).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL 5: Generate Bitcoin Address ============ -->
+    <div class="modal-overlay" id="modal5">
+        <span class="close-button" onclick="closeModal('modal5')">&times;</span>
+        <div class="modal-content">
+            <div class="modal-item">
+                <h3>1. Buat file: bitcoinaddr.py</h3>
+                <hr>
+      
+                <p> masukin Publik key yang udah di hash tadi di terminal ( terminal code dibawah ini ) buat dapetin bitcoin address valid. </p>
+                <p> <strong>contoh input : </strong>df5e381bf348b646c23dc6e012f18bb65d388500
+                                <p> <strong> contoh output:</strong>1MN4ZEzr127pPenaXsMEB86FrEVdjvgkKP
+
+                <!-- Kotak Kode -->
+                <div class="code-container">
+                    <div class="code-box" id="codeBlock4">
+                        <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>import binascii
+import hashlib
+import base58
+
+# ----------------------------
+# Input Public Key Hash (RIPEMD-160)
+# ----------------------------
+pubkey_hash_hex = input("Masukkan Public Key Hash (hex): ").strip()
+try:
+    pubkey_hash_bytes = bytes.fromhex(pubkey_hash_hex)
+    if len(pubkey_hash_bytes) != 20:
+        raise ValueError("Public key hash harus 20 byte (40 hex karakter).")
+except ValueError as e:
+    print("Error:", e)
+    exit()
+
+# ----------------------------
+# Tambah Version Byte (0x00 untuk Mainnet P2PKH)
+# ----------------------------
+versioned_payload = b'\x00' + pubkey_hash_bytes
+
+# ----------------------------
+# Hitung Checksum (4 byte)
+# ----------------------------
+checksum = hashlib.sha256(hashlib.sha256(versioned_payload).digest()).digest()[:4]
+
+# ----------------------------
+# Gabung dan Encode Base58Check
+# ----------------------------
+address_bytes = versioned_payload + checksum
+btc_address = base58.b58encode(address_bytes).decode()
+
+print("Bitcoin Address:", btc_address)
+
+                
+            </div>
+        </div>
+        <div class="modal-item">
+                <h3>2. Informasi ( optional to read )</h3>
+                <hr>
+                <div style="background-color:#white; padding:20px; border-radius:8px;">
+<h2>Penjelasan Detail Kode</h2>
+
+<h3>1. Impor Modul</h3>
+<div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+import binascii
+import hashlib
+import base58
+</div>
+<p>
+binascii: Modul untuk mengonversi data biner ke format heksadesimal dan sebaliknya. Digunakan untuk memvalidasi input heksadesimal.<br>
+hashlib: Modul standar Python untuk algoritma hash kriptografis, seperti SHA-256, yang digunakan untuk menghitung checksum.<br>
+base58: Modul untuk mengencode data ke format Base58Check, yang merupakan format standar untuk alamat Bitcoin. Anda perlu menginstal pustaka ini dengan perintah: <code>pip install base58</code>
+</p>
+
+<h3>2. Input Public Key Hash dari Pengguna</h3>
+<div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+pubkey_hash_hex = input("Masukkan Public Key Hash (hex): ").strip()
+try:
+    pubkey_hash_bytes = bytes.fromhex(pubkey_hash_hex)
+    if len(pubkey_hash_bytes) != 20:
+        raise ValueError("Public key hash harus 20 byte (40 hex karakter).")
+except ValueError as e:
+    print("Error:", e)
+    exit()
+</div>
+<p>
+Fungsi Bagian Ini:<br>
+Meminta pengguna untuk memasukkan public key hash (hasil hash RIPEMD-160 dari kunci publik terkompresi) dalam format heksadesimal (contoh: 6f8d2a1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f).<br>
+<code>.strip()</code>: Menghapus spasi atau karakter newline yang tidak diinginkan dari input.<br>
+<code>bytes.fromhex(pubkey_hash_hex)</code>: Mengonversi string heksadesimal menjadi data biner (bytes).<br>
+Validasi:<br>
+Memeriksa apakah panjang public key hash dalam format biner adalah 20 byte (setara dengan 40 karakter heksadesimal).<br>
+Jika input tidak valid (bukan hex atau panjang tidak 20 byte), kode menampilkan pesan kesalahan dan keluar (<code>exit()</code>).
+</p>
+
+<h3>3. Menambahkan Version Byte</h3>
+<div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+versioned_payload = b'\x00' + pubkey_hash_bytes
+</div>
+<p>
+Fungsi Bagian Ini:<br>
+Menambahkan version byte (0x00) di awal public key hash.<br>
+Version byte 0x00 menunjukkan alamat mainnet P2PKH (Pay-to-Public-Key-Hash).<br>
+Hasil: versioned_payload sepanjang 21 byte (1 byte version + 20 byte public key hash).<br>
+Mengapa Version Byte?:<br>
+Version byte membedakan jenis jaringan dan jenis alamat:<br>
+0x00: Mainnet P2PKH<br>
+0x6f: Testnet P2PKH<br>
+0x05: Mainnet P2SH
+</p>
+
+<h3>4. Menghitung Checksum</h3>
+<div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+checksum = hashlib.sha256(hashlib.sha256(versioned_payload).digest<br>()).digest()[:4]
+</div>
+<p>
+Fungsi Bagian Ini:<br>
+Menghitung checksum untuk memastikan integritas alamat.<br>
+Langkah-langkah:<br>
+- SHA-256 pertama: <code>hashlib.sha256(versioned_payload).digest()</code><br>
+- SHA-256 kedua: hash dari hasil pertama, <code>hashlib.sha256(...).digest()</code><br>
+- <code>[:4]</code>: Mengambil 4 byte pertama sebagai checksum.<br>
+Mengapa Checksum?:<br>
+Deteksi kesalahan penulisan alamat. Jika salah ketik, checksum tidak cocok saat didecode.
+</p>
+
+<h3>5. Menggabungkan dan Encode ke Base58Check</h3>
+<div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+address_bytes = versioned_payload + checksum
+btc_address = base58.b58encode(address_bytes).decode()
+</div>
+<p>
+Fungsi Bagian Ini:<br>
+Menggabungkan versioned_payload (21 byte) + checksum (4 byte) → address_bytes (25 byte total).<br>
+<code>base58.b58encode(address_bytes)</code>: Encode ke Base58Check.<br>
+<code>.decode()</code>: Konversi bytes ke string ASCII.<br>
+Mengapa Base58Check?:<br>
+Format ini menghindari karakter membingungkan (0, O, I, l) dan menyertakan checksum untuk validitas.
+</p>
+
+<h3>6. Output</h3>
+<div style="background-color:#FFFCB8; padding:15px; border-radius:5px; white-space:pre-wrap;">
+print("Bitcoin Address:", btc_address)
+</div>
+<p>
+Mencetak alamat Bitcoin dalam format Base58Check. Output biasanya dimulai dengan '1' untuk alamat P2PKH mainnet (panjang bervariasi, 26–35 karakter).
+</p>
+</div>
+    </div>
+
+    <script>
+        // Fungsi Buka Modal
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const modalContent = modal.querySelector('.modal-content');
+            
+            // Tampilkan modal
+            modal.classList.add('show');
+            
+            // Reset scroll ke atas
+            modalContent.scrollTop = 0;
+
+            // Animasi gambar
+            const button = event.currentTarget;
+            const img = button.querySelector('img');
+            img.classList.remove('image-reappear');
+            img.classList.add('image-disappear');
+        }
+
+        // Fungsi Tutup Modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const img = document.querySelector(`[data-modal="${modalId}"] img`);
+            modal.classList.remove('show');
+
+            setTimeout(() => {
+                if (img) {
+                    img.classList.remove('image-disappear');
+                    img.classList.add('image-reappear');
+                    img.addEventListener('animationend', () => {
+                        img.classList.remove('image-reappear');
+                    }, { once: true });
+                }
+            }, 500);
+        }
+
+        // Buka modal
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-modal');
+                openModal(modalId);
+            });
+        });
+
+        // Tutup modal saat klik overlay
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    const modalId = modal.id;
+                    closeModal(modalId);
+                }
+            });
+        });
+
+        // Tutup modal saat klik tombol close
+        document.querySelectorAll('.close-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modalId = this.parentElement.id;
+                closeModal(modalId);
+            });
+        });
+
+        // Fungsi Copy perintah pip
+        function copyPipCommands() {
+            const texts = [
+                "pip install ecdsa",
+                "pip install pycryptodome",
+                "pip install base58"
+            ];
+            const textToCopy = texts.join('\n');
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const toast = document.getElementById('copiedToast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal salin: ', err);
+                alert("❌ Gagal menyalin. Coba manual.");
+            });
+        }
+
+        // Fungsi Copy Kode (Revisi: reusable untuk semua kotak)
+        function copyCode(button) {
+            const codeElement = button.closest('.code-box')?.querySelector('code');
+            if (!codeElement) {
+                alert("❌ Tidak bisa menemukan kode untuk disalin.");
+                return;
+            }
+
+            const textToCopy = codeElement.textContent;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const toast = document.getElementById('copiedToast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal salin kode: ', err);
+                alert("❌ Gagal menyalin kode.");
+            });
+        }
+    </script>
+
+</body>
+</html>

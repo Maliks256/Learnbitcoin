@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin to Satoshi</title>
+  <style>
+    body {
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    #text {
+      font-size: 90px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .char {
+      display: inline-block;
+      position: relative;
+    }
+
+    @keyframes moveUpOut {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-40px); }
+    }
+
+    @keyframes moveUpIn {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .out {
+      animation: moveUpOut 0.4s forwards ease;
+    }
+
+    .in {
+      animation: moveUpIn 0.4s forwards ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="text"></div>
+
+  <script>
+    const el = document.getElementById("text");
+    const startText = "Bitcoin";
+    const endText = "Satoshi";
+
+    // bikin huruf awal tampil
+    function renderText(str) {
+      el.innerHTML = "";
+      for (let ch of str) {
+        const span = document.createElement("span");
+        span.textContent = ch;
+        span.classList.add("char");
+        el.appendChild(span);
+      }
+    }
+
+    renderText(startText);
+
+    // logic perubahan huruf per 0.4s
+    setTimeout(() => {
+      const maxLen = Math.max(startText.length, endText.length);
+      let current = startText.split("");
+
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i >= maxLen) {
+          clearInterval(interval);
+          return;
+        }
+
+        const oldChar = el.children[i];
+        const newChar = endText[i] || "";
+
+        if (oldChar) {
+          // huruf lama animasi ke atas keluar
+          oldChar.classList.add("out");
+
+          setTimeout(() => {
+            oldChar.textContent = newChar;
+            oldChar.classList.remove("out");
+            oldChar.classList.add("in");
+          }, 200); // setengah durasi, ganti huruf di tengah animasi
+        } else if (newChar) {
+          // kalau panjang bertambah
+          const span = document.createElement("span");
+          span.textContent = newChar;
+          span.classList.add("char", "in");
+          el.appendChild(span);
+        }
+
+        i++;
+      }, 150); // 0.4 detik per huruf
+    }, 200); // delay awal 1 detik
+  </script>
+</body>
+</html>

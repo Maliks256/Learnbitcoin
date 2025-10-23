@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Blockchain Mining Demo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      background: #F8F7BA;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      width: 100%;
+      height: 60px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      box-sizing: border-box;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .header h2 { margin: 0; font-size: 20px; font-weight: bold; }
+
+    .back-btn {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      font-size: 20px; color: #333;
+      border: 1px solid #ccc;
+      transition: all 0.3s ease;
+    }
+    .back-btn:hover { background: #ddd; }
+
+    /* Container */
+    .center-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 15px 15px 200px 15px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .blocks {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: all 0.3s ease;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .block {
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+      word-wrap: break-word;
+      position: relative;
+      min-height: 200px;
+    }
+    .block.show { 
+      opacity: 1; 
+      transform: translateY(0);
+    }
+
+    .block-info {
+      margin-bottom: 15px;
+    }
+
+    .mining-info {
+      background: #fff;
+      padding: 1px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      
+    }
+
+    .hash-display {
+      
+      color: black;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      word-break: break-all;
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      border: 1px solid black;
+    }
+
+    .mining-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .loading-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ddd;
+      border-top: 2px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Buttons */
+    .add-btn, .reset-btn {
+      position: fixed;
+      padding: 12px 20px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.3s forwards;
+    }
+    .add-btn:hover, .reset-btn:hover { 
+      background: #f0f0f0; 
+      transform: scale(1.05);
+    }
+    .reset-btn { bottom: 20px; left: 20px; }
+    .add-btn  { bottom: 20px; right: 20px; }
+
+    /* Popup umum */
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .popup.show { 
+      display: flex; 
+      opacity: 1;
+    }
+    .popup-content {
+      background: #fff;
+      padding: 25px;
+      border: 1px solid #000;
+      border-radius: 12px;
+      text-align: center;
+      width: 350px;
+      box-sizing: border-box;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+    .popup.show .popup-content {
+      transform: scale(1);
+    }
+    .popup-content input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #000;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    /* Custom difficulty selector */
+    .difficulty-selector {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin: 15px 0;
+      box-sizing: border-box;
+    }
+
+    .difficulty-option {
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .difficulty-option:last-child {
+      border-bottom: none;
+    }
+
+    .difficulty-option:hover {
+      background: #f8f9fa;
+    }
+
+    .difficulty-option.selected {
+      background: #e3f2fd;
+      border-left: 3px solid #2196f3;
+    }
+
+    .difficulty-option input[type="radio"] {
+      margin: 0;
+      width: auto;
+    }
+
+    .custom-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .custom-input input {
+      width: 60px;
+      padding: 8px;
+      margin: 0;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .difficulty-label-text {
+      flex: 1;
+      text-align: left;
+    }
+    .popup-content button {
+      margin: 5px; padding: 10px 18px;
+      border: 1px solid #000; background: #fff; cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    .popup-content button:hover { background: #f0f0f0; }
+
+    /* Success popup */
+    .success-popup {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      color: #000;
+      padding: 8px 15px;
+      border-radius: 6px;
+      z-index: 2000;
+      transition: all 0.5s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border: 1px solid #000;
+      font-size: 12px;
+      opacity: 0;
+    }
+    .success-popup.show {
+      top: 20px;
+      opacity: 1;
+    }
+    
+    .warning-popup {
+      position: fixed;
+      top: -100px; 
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff; 
+      color: #000; 
+      padding: 12px 22px;
+      border-radius: 8px; 
+      z-index: 2000;
+      border: 1px solid #000; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-size: 14px;
+      opacity: 0; 
+      transition: top 0.4s ease, opacity 0.4s ease; 
+    }
+
+    .warning-popup.show {
+      top: 20px; 
+      opacity: 1; 
+    }
+
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    .difficulty-easy {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .difficulty-medium {
+      color: #fd7e14;
+      font-weight: bold;
+    }
+
+    .difficulty-hard {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .realtime-mining {
+      background: #fff;
+      border: 1px solid black;
+      padding: 8px;
+      border-radius: 4px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>Blockchain</h2>
+    <a href="nvme_listp.html" class="back-btn">&gt;</a>
+  </div>
+
+  <div class="center-wrapper">
+    <div class="blocks" id="blocks"></div>
+  </div>
+
+  <button class="reset-btn" onclick="showPopup('reset')">Reset</button>
+  <button class="add-btn" onclick="showPopup('add')">+ Add Data</button>
+
+  <div class="success-popup" id="successPopup"></div>
+  <div class="warning-popup" id="warningPopup"></div>
+
+  <div class="popup" id="popupReset">
+    <div class="popup-content">
+      <p>Yakin reset blockchain?</p>
+      <button onclick="hidePopup('reset')">Cancel</button>
+      <button onclick="resetChain()">OK</button>
+    </div>
+  </div>
+
+  <div class="popup" id="popupAdd">
+    <div class="popup-content">
+      <p>Tambah Block Baru:</p>
+      <input type="text" id="dataInput" placeholder="Masukkan data...">
+      
+      <label style="display: block; margin: 15px 0 10px 0; font-weight: bold;">Pilih Difficulty:</label>
+      <div class="difficulty-selector">
+        <div class="difficulty-option selected" onclick="selectDifficulty(1, this)">
+          <div class="difficulty-label-text">
+            <input type="radio" name="difficulty" value="1" checked style="margin-right: 8px;">
+            1 - Mudah
+          </div>
+        </div>
+        <div class="difficulty-option" onclick="selectDifficulty(2, this)">
+          <div class="difficulty-label-text">
+            <input type="radio" name="difficulty" value="2" style="margin-right: 8px;">
+            2 - Sedang
+          </div>
+        </div>
+        <div class="difficulty-option" onclick="selectDifficulty(3, this)">
+          <div class="difficulty-label-text">
+            <input type="radio" name="difficulty" value="3" style="margin-right: 8px;">
+            3 - Sulit
+          </div>
+        </div>
+        <div class="difficulty-option" onclick="selectDifficulty(4, this)">
+          <div class="difficulty-label-text">
+            <input type="radio" name="difficulty" value="4" style="margin-right: 8px;">
+            4 - Sangat Sulit
+          </div>
+        </div>
+        <div class="difficulty-option" onclick="selectDifficulty(5, this)">
+          <div class="difficulty-label-text">
+            <input type="radio" name="difficulty" value="5" style="margin-right: 8px;">
+            5 - Ekstrim
+          </div>
+        </div>
+        <div class="difficulty-option" onclick="selectCustomDifficulty(this)">
+          <div class="custom-input">
+            <input type="radio" name="difficulty" value="custom">
+            <div class="difficulty-label-text">Custom:</div>
+            <input type="number" id="customDifficultyInput" min="1" max="20" placeholder="6" onclick="event.stopPropagation();" onchange="updateCustomDifficulty()">
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <button onclick="hidePopup('add')">Cancel</button>
+        <button onclick="okForm()">Mulai Mining</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    let blocks = JSON.parse(localStorage.getItem("blocksMining")) || [];
+    const container = document.getElementById("blocks");
+    const scrollWrapper = document.querySelector('.center-wrapper');
+    let isMining = false;
+
+    async function initGenesis() {
+      if (blocks.length === 0) {
+        const genesisData = "Genesis Block";
+        const genesisHash = await sha256("0" + Date.now() + genesisData + "0" + "0");
+        blocks.push({
+          index: 0,
+          timestamp: new Date().toLocaleString(),
+          data: genesisData,
+          prevHash: "0",
+          nonce: 0,
+          difficulty: 0,
+          hash: genesisHash
+        });
+        localStorage.setItem("blocksMining", JSON.stringify(blocks));
+      }
+      renderBlocks();
+    }
+
+    function renderBlocks() {
+      container.innerHTML = "";
+      blocks.forEach((b, index) => {
+        const div = document.createElement("div");
+        div.className = "block";
+        
+        let difficultyClass = '';
+        if (b.difficulty >= 1 && b.difficulty <= 2) {
+          difficultyClass = 'difficulty-easy';
+        } else if (b.difficulty >= 3 && b.difficulty <= 4) {
+          difficultyClass = 'difficulty-medium';
+        } else if (b.difficulty >= 5) {
+          difficultyClass = 'difficulty-hard';
+        }
+        
+        div.innerHTML = `
+          <div class="block-info">
+            <b>Block:</b> #${b.index}<br><br>
+            <b>Timestamp:</b> ${b.timestamp}<br><br>
+            <b>Data:</b> ${b.data}<br><br>
+            <b>Previous Hash:</b> ${b.prevHash}<br><br>
+          </div>
+          ${b.difficulty > 0 ? `
+          <div class="mining-info">
+            <b>Difficulty:</b> <span class="${difficultyClass}">${b.difficulty}</span><br><br>
+            <b>Nonce:</b> ${b.nonce}
+          </div>
+          ` : ''}
+          ${b.hash ? `
+          <div class="hash-display">
+            <b>Hash:</b><br>${b.hash}
+          </div>
+          ` : ''}
+        `;
+        container.appendChild(div);
+        setTimeout(() => div.classList.add("show"), index * 100 + 50);
+      });
+    }
+    
+    function scrollToLastBlock() {
+      if (scrollWrapper) {
+        scrollWrapper.scrollTo({
+          top: scrollWrapper.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
+
+    function showPopup(type) {
+      const popup = document.getElementById(type === "reset" ? "popupReset" : "popupAdd");
+      popup.classList.add("show");
+    }
+
+    function hidePopup(type) {
+      const popup = document.getElementById(type === "reset" ? "popupReset" : "popupAdd");
+      popup.classList.remove("show");
+      if (type === "add") {
+        document.getElementById("dataInput").value = "";
+        document.querySelectorAll('.difficulty-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelectorAll('.difficulty-option')[0].classList.add('selected');
+        document.querySelector('input[name="difficulty"][value="1"]').checked = true;
+        document.getElementById("customDifficultyInput").value = "";
+      }
+    }
+
+    function selectDifficulty(value, element) {
+      document.querySelectorAll('.difficulty-option').forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      element.querySelector('input[type="radio"]').checked = true;
+    }
+
+    function selectCustomDifficulty(element) {
+      document.querySelectorAll('.difficulty-option').forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      element.querySelector('input[type="radio"]').checked = true;
+      document.getElementById("customDifficultyInput").focus();
+    }
+
+    function updateCustomDifficulty() {
+      const customInput = document.getElementById("customDifficultyInput");
+      const customOption = customInput.closest('.difficulty-option');
+      selectCustomDifficulty(customOption);
+    }
+
+    function getSelectedDifficulty() {
+      const selectedRadio = document.querySelector('input[name="difficulty"]:checked');
+      if (selectedRadio.value === 'custom') {
+        const customValue = parseInt(document.getElementById("customDifficultyInput").value);
+        return customValue || 6;
+      }
+      return parseInt(selectedRadio.value);
+    }
+
+    function showSuccessPopup(nonce) {
+      const popup = document.getElementById("successPopup");
+      popup.innerHTML = `🎉 Nonce Found: ${nonce}`;
+      popup.classList.add("show");
+      setTimeout(() => popup.classList.remove("show"), 3000);
+    }
+
+    function showWarningPopup(message) {
+      const popup = document.getElementById("warningPopup");
+      popup.innerText = message;
+      popup.classList.add("show");
+      setTimeout(() => popup.classList.remove("show"), 3000);
+    }
+
+
+    async function mineBlock(index, timestamp, data, prevHash, difficulty) {
+      return new Promise((resolve) => {
+        let nonce = 0;
+        const target = "0".repeat(difficulty);
+        
+        const mine = async () => {
+          const input = index + timestamp + data + prevHash + nonce;
+          const hash = await sha256(input);
+          
+          if (nonce % 1 === 0) {
+            updateMiningDisplay(nonce, hash);
+          }
+          
+          if (hash.startsWith(target)) {
+            resolve({ nonce, hash });
+          } else {
+            nonce++;
+            setTimeout(mine, 1);
+          }
+        };
+        
+        mine();
+      });
+    }
+
+    function updateMiningDisplay(nonce, hash) {
+      const lastBlock = container.lastElementChild;
+      if (lastBlock) {
+        const miningDiv = lastBlock.querySelector('.realtime-mining') || (() => {
+          const div = document.createElement('div');
+          div.className = 'realtime-mining';
+          lastBlock.appendChild(div);
+          return div;
+        })();
+        
+        miningDiv.innerHTML = `
+          <div class="mining-status">
+            <div class="loading-spinner"></div>
+            <div> Nonce: ${nonce}</div>
+          </div>
+          <div style="font-size: 12px; margin-top: 8px;">
+            <b>Current Hash:</b><br>${hash}
+          </div>
+        `;
+      }
+    }
+
+    async function okForm() {
+      if (isMining) return;
+      
+      const input = document.getElementById("dataInput");
+      const data = input.value; // <-- .trim() DIHAPUS DI SINI
+      
+      const difficulty = getSelectedDifficulty();
+      
+      if (data === "") {
+        showWarningPopup("Isi data dulu");
+        return;
+      }
+
+      if (difficulty < 1 || difficulty > 20) {
+        showWarningPopup("Difficulty harus antara 1-20");
+        return;
+      }
+
+      hidePopup("add");
+      isMining = true;
+
+      const prev = blocks[blocks.length - 1];
+      const newIndex = blocks.length;
+      const timestamp = Date.now().toString();
+
+      const tempBlock = {
+        index: newIndex,
+        timestamp: new Date().toLocaleString(),
+        data: data,
+        prevHash: prev.hash,
+        nonce: 0,
+        difficulty: difficulty,
+        hash: ""
+      };
+
+      blocks.push(tempBlock);
+      renderBlocks();
+      scrollToLastBlock();
+
+      try {
+        const { nonce, hash } = await mineBlock(newIndex, timestamp, data, prev.hash, difficulty);
+
+        const lastBlockEl = container.lastElementChild;
+        const miningDiv = lastBlockEl?.querySelector('.realtime-mining');
+        if (miningDiv) {
+          miningDiv.remove();
+        }
+
+        blocks[blocks.length - 1] = {
+          index: newIndex,
+          timestamp: new Date().toLocaleString(),
+          data: data,
+          prevHash: prev.hash,
+          nonce: nonce,
+          difficulty: difficulty,
+          hash: hash
+        };
+
+        localStorage.setItem("blocksMining", JSON.stringify(blocks));
+        renderBlocks();
+        scrollToLastBlock();
+        showSuccessPopup(nonce);
+
+      } catch (error) {
+        console.error("Mining error:", error);
+        blocks.pop();
+        renderBlocks();
+      }
+
+      isMining = false;
+    }
+
+    async function resetChain() {
+      if (isMining) return;
+      
+      localStorage.removeItem("blocksMining");
+      blocks = [];
+      hidePopup("reset");
+      await initGenesis();
+    }
+
+    initGenesis();
+  </script>
+
+</body>
+</html>

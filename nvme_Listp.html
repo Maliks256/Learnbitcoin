@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box List</title>
+  <style>
+    body {
+      background-color: #ffffff;
+      font-family: monospace;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: filter 0.3s ease;
+    }
+    .content {
+      width: 100%;
+      max-width: 1000px;
+      margin-left: 10%;
+      margin-right: 40%;
+      opacity: 0;
+      animation: fadeIn 1.5s forwards;
+      position: relative;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .box-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .box {
+      background: #ffffff;
+      border: 1px solid #000000;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      padding: 15px 20px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: boxFadeIn 0.6s forwards;
+      cursor: pointer;
+    }
+
+    .box .arrow {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .fade-out {
+      animation: fadeOut 1s forwards;
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes boxFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .box:nth-child(1) { animation-delay: 0.2s; }
+    .box:nth-child(2) { animation-delay: 0.4s; }
+    .box:nth-child(3) { animation-delay: 0.6s; }
+    .box:nth-child(4) { animation-delay: 0.8s; }
+    .box:nth-child(5) { animation-delay: 1.0s; }
+    .box:nth-child(6) { animation-delay: 1.2s; }
+    .box:nth-child(7) { animation-delay: 1.4s; }
+    .box:nth-child(8) { animation-delay: 1.6s; }
+    .box:nth-child(9) { animation-delay: 1.8s; }
+    .box:nth-child(10) { animation-delay: 2.0s; }
+
+    /* Tombol back bulat di pojok kanan atas */
+    .back-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      color: #000;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+      z-index: 1100;
+    }
+
+    .back-btn:hover {
+      background: #f5f5f5;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal {
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 10px;
+      padding: 20px;
+      width: 280px;
+      max-width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: modalIn 0.3s forwards;
+    }
+
+    @keyframes modalIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal h2 {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      border-top: 1px solid #ccc;
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      padding-top: 10px;
+      position: relative;
+    }
+
+    /* Garis pemisah vertikal di tengah */
+    .modal-footer::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: #ccc;
+      transform: translateX(-50%);
+    }
+
+    .modal-footer button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 6px 12px;
+      width: 100%;
+    }
+
+    .modal-footer button:hover {
+      text-decoration: underline;
+    }
+  </style>
+  <script>
+    window.addEventListener('beforeunload', function () {
+      document.querySelector('.content').classList.add('fade-out');
+    });
+
+    // Modal logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const boxes = document.querySelectorAll('.box');
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      document.body.appendChild(overlay);
+
+      boxes.forEach(box => {
+        box.addEventListener('click', () => {
+          const label = box.textContent.replace('>', '').trim();
+          const fileName = "nvme_" + label.toLowerCase().replace(/\s+/g, "_") + ".html";
+
+          const modal = document.createElement('div');
+          modal.className = 'modal';
+          modal.innerHTML = `
+            <h2>Jump to ${label}?</h2>
+            <div class="modal-footer">
+              <button onclick="document.querySelector('.modal-overlay').style.display='none'">Cancel</button>
+              <button onclick="window.location.href='${fileName}'">Yes</button>
+            </div>
+          `;
+          overlay.innerHTML = '';
+          overlay.appendChild(modal);
+          overlay.style.display = 'flex';
+        });
+      });
+
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) {
+          overlay.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <a href="home.html" class="back-btn">&gt;</a>
+  <div class="content">
+    <h2>Try now!</h2>
+    <div class="box-container">
+      <div class="box"><span class="arrow">></span> Signature</div>
+      <div class="box"><span class="arrow">></span> Wallet</div>
+      <div class="box"><span class="arrow">></span> Key</div>
+      <div class="box"><span class="arrow">></span> Node</div>
+      <div class="box"><span class="arrow">></span> Blockchain</div>
+      <div class="box"><span class="arrow">></span> Mining</div>
+      <div class="box"><span class="arrow">></span> Hackkey</div>
+    </div>
+  </div>
+</body>
+</html>

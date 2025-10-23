@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Let's Force!</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #fff;
+    font-family: monospace;
+    color: #000;
+    overflow-x: hidden;
+  }
+
+  /* Tombol pojok */
+  .circle-btn{
+    position:fixed;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:#fff;
+    border:1px solid #000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    color:#000;
+    font-size:22px;
+    cursor:pointer;
+    z-index: 40;
+  }
+  .btn-left{top:20px; left:20px;}
+  .btn-right{top:20px; right:20px;}
+  .btn-bottom-right{bottom:20px; right:20px;}
+
+  /* Wrapper tengah layar */
+  .center-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  h1{
+    font-size:30px;
+    font-weight:700;
+    text-align:center;
+    margin:0;
+  }
+
+  /* Kotak info auto width sesuai isi */
+  .rounded-box{
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 20px;
+    border:1px solid #000;
+    border-radius:12px;
+    background:#fff;
+    box-sizing:border-box;
+    min-width: 220px;
+    max-width: 400px;
+  }
+
+  .row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    font-size:15px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .label{min-width:70px; font-weight:600;}
+  .value{flex:1; overflow:hidden; text-overflow:ellipsis;}
+
+  /* Tombol Run mengikuti lebar kotak info */
+  .run-btn{
+    width: 100%;
+    padding: 12px 24px;
+    border-radius:10px;
+    border:1px solid #000;
+    background:#fff;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .run-btn[disabled]{ opacity:0.6; cursor:default; }
+
+  .progress{font-size:13px;text-align:center;margin-top:6px;}
+  .muted{font-size:12px;color:#666;text-align:center;margin-top:8px;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    max-width: 400px;
+    background: #fff;
+    border:1px solid #000;
+    border-radius:12px;
+    box-sizing: border-box;
+    padding: 12px;
+    max-height: 70vh;
+    overflow: hidden;
+    z-index: 10000;
+  }
+  .modal-large { width:90%; max-width:none; }
+
+  .modal-inner { height: calc(70vh - 70px); overflow: auto; padding-right: 6px; }
+  .modal-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding-bottom:8px;
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    margin-bottom:8px;
+  }
+  .modal-title { font-weight:700; font-size:16px; }
+  .modal-close {
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    border:1px solid #000;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .modal-table { width:100%; box-sizing:border-box; }
+  .modal-row {
+    display:flex;
+    gap:8px;
+    align-items:center;
+    padding:8px 6px;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    font-size:13px;
+    word-break:break-all;
+  }
+  .modal-row.header { font-weight:700; background:#fff; border-bottom:1px solid rgba(0,0,0,0.12); }
+  .modal-row:last-child { border-bottom:none; }
+  .m-col-key { width:60px; min-width:40px; font-weight:700; }
+  .m-col-addr { flex:1; min-width:120px; }
+  .m-col-bal { width:90px; text-align:right; min-width:70px; }
+  .empty-hint { text-align:center; color:#666; font-size:13px; padding:12px 6px; }
+
+  /* help content style */
+  .help-list { padding: 6px 4px; font-size:14px; line-height:1.45; }
+  .help-list ol { padding-left: 18px; margin: 6px 0; }
+  .help-list code{background:#f5f5f5;padding:2px 4px;border-radius:4px;border:1px solid rgba(0,0,0,0.04);}
+
+  /* === [BARU] LIST SALDO DITEMUKAN === */
+  .balance-list-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 12px;
+      padding: 12px;
+      max-height: 250px; /* Batas tinggi */
+      overflow-y: auto;  /* Scroll jika item banyak */
+      z-index: 50;
+      display: none; /* Sembunyi secara default */
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .balance-list-container h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #eee;
+  }
+  .balance-list-item {
+      font-size: 13px;
+      padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+  }
+  /* Alamat (kiri) */
+  .balance-list-item span:first-child {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; /* Tampilkan ... jika terlalu panjang */
+      flex: 1;
+  }
+  /* Saldo (kanan) */
+  .balance-list-item span:last-child {
+      font-weight: bold;
+      white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<button id="openModalBtn" aria-haspopup="dialog" class="circle-btn btn-left">!</button>
+<a href="nvme_hackkey.html" class="circle-btn btn-right">&gt;</a>
+<button id="openHelpModalBtn" class="circle-btn btn-bottom-right">?</button>
+
+<div class="center-wrap">
+  <h1>Let's Force !</h1>
+
+  <div class="rounded-box" id="infoBox">
+    <div class="row"><div class="label">Key :</div><div class="value" id="keyVal">—</div></div>
+    <div class="row"><div class="label">Address :</div><div class="value" id="addrVal">—</div></div>
+    <div class="row"><div class="label">Balance :</div><div class="value" id="balVal">—</div></div>
+  </div>
+
+  <button id="runBtn" class="run-btn">Run</button>
+  <div class="progress" id="progress">Ready</div>
+  
+
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" role="document" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div id="modalTitle" class="modal-title">Found list :</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button id="clearFoundBtn" class="modal-close" title="Clear list">C</button>
+        <button id="closeModalBtn" class="modal-close" title="Close"></button>
+      </div>
+    </div>
+    <div class="modal-inner">
+      <div class="modal-table" aria-live="polite">
+        <div class="modal-row header">
+          <div class="m-col-key">(key)</div>
+          <div class="m-col-addr">(address)</div>
+          <div class="m-col-bal">(balance)</div>
+        </div>
+        <div id="modalRows"></div>
+        <div id="emptyHint" class="empty-hint">Belum ada hasil. Klik <strong>Run</strong> untuk mulai pengecekan.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="helpModalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal modal-large" role="document" aria-labelledby="helpModalTitle">
+    <div class="modal-header">
+      <div id="helpModalTitle" class="modal-title">Help / Info</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button id="closeHelpModalBtn" class="modal-close" title="Close"></button>
+      </div>
+    </div>
+    <div class="modal-inner">
+      <div class="help-list">
+        <ol>
+        	<br>
+        <strong>	Brute force menggunakan metode ACAK (Random)</strong>
+        <br> | Keyspace: 1 - 1000 </br>
+        <br>
+        	<br>
+        	<hr>
+        	<br>
+          Saat klik " Run " apa yang terjadi?
+          <li>Generate key ( kunci ) secara ACAK dari angka 1 - 1000 ( desimal integer ). Sistem tidak mengecek berurutan tapi RANDOM!</li>
+          <li>Setiap key yang di-generate akan dicatat supaya tidak ada duplikasi (pakai array shuffle untuk tracking)</li>
+          <li>Lalu "angka" tersebut kita akan ubah menjadi hash (SHA-256)</li>
+          <li>"angka" = Kunci untuk mengakses dana. <br>"Hash ( hasil dari kunci )" = Alamat untuk menerima dana</li>
+          <li>sistem akan mengecek di file fake_blockchain.json ( anggap saja ini file blockchain bitcoin )</li>
+          <li>isi file fake_blockchain.json : <br> Alamat / address <br> Saldo bitcoin</li>
+          <li>Jika ditemukan alamat yang berisi saldo, maka akan ditandai "Found balance" <br> jika alamat tersebut tidak memiliki saldo, sistem akan terus mencoba membuat alamat baru sampai semua key di-check</li>
+          <hr>
+          	<br> </br>
+          	<strong>Kenapa pakai metode ACAK?</strong><br>
+          	Karena di real brute force, key yang dicoba sering random/acak untuk menghindari pola yang mudah diprediksi. Dengan metode random, ada kemungkinan lebih cepat menemukan key yang valid!<br><br>
+          	Btw ini ga sama kaya pas brute force bitcoin key beneran, karna ribet, butuh api, butuh ecc dll mualazzzzz, hh. <br>
+          <br> oh iya keyspace yg dipake bitcoin juga gede bgt, jadi w pake 1000 aja biar enteng</br>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="balance-list-container" id="balanceListContainer">
+  <h3>Found Address W/balance :</h3>
+  <div id="balanceList"></div>
+</div>
+
+<script>
+function toHex(buffer){const bytes=new Uint8Array(buffer);let s='';for(let b of bytes){let h=b.toString(16);if(h.length===1) h='0'+h;s+=h;}return s;}
+async function sha256(bytes){const digest=await crypto.subtle.digest('SHA-256', bytes);return toHex(digest);}
+
+const runBtn=document.getElementById('runBtn');
+const keyVal=document.getElementById('keyVal');
+const addrVal=document.getElementById('addrVal');
+const balVal=document.getElementById('balVal');
+const progress=document.getElementById('progress');
+
+const openModalBtn=document.getElementById('openModalBtn');
+const modalBackdrop=document.getElementById('modalBackdrop');
+const closeModalBtn=document.getElementById('closeModalBtn');
+const modalRows=document.getElementById('modalRows');
+const emptyHint=document.getElementById('emptyHint');
+const clearFoundBtn=document.getElementById('clearFoundBtn');
+const foundItems=[];
+
+const openHelpModalBtn=document.getElementById('openHelpModalBtn');
+const helpModalBackdrop=document.getElementById('helpModalBackdrop');
+const closeHelpModalBtn=document.getElementById('closeHelpModalBtn');
+
+// [BARU] Variabel untuk list saldo
+const balanceListContainer = document.getElementById('balanceListContainer');
+const balanceList = document.getElementById('balanceList');
+
+// [BARU] Fungsi untuk menambahkan item ke list saldo di kiri bawah
+function appendFoundToBalanceList(address, balance) {
+  balanceListContainer.style.display = 'block'; // Tampilkan container jika ada item
+  const item = document.createElement('div');
+  item.className = 'balance-list-item';
+  
+  const addrSpan = document.createElement('span');
+  addrSpan.textContent = address;
+  addrSpan.title = address; // Tampilkan address penuh saat hover
+  
+  const balSpan = document.createElement('span');
+  balSpan.textContent = balance + ' BTC';
+
+  item.appendChild(addrSpan);
+  item.appendChild(balSpan);
+  balanceList.appendChild(item);
+}
+
+
+function appendFoundToModal(key,address,balance){
+  emptyHint.style.display='none';
+  const modalInner = document.querySelector('.modal-inner');
+  const scrollAtBottom = modalInner.scrollTop + modalInner.clientHeight >= modalInner.scrollHeight - 1;
+  const row=document.createElement('div'); row.className='modal-row';
+  const cKey=document.createElement('div'); cKey.className='m-col-key'; cKey.textContent=key;
+  const cAddr=document.createElement('div'); cAddr.className='m-col-addr'; cAddr.textContent=address;
+  const cBal=document.createElement('div'); cBal.className='m-col-bal'; cBal.textContent=(balance===null)?'—':balance+' BTC';
+  row.appendChild(cKey); row.appendChild(cAddr); row.appendChild(cBal);
+  modalRows.appendChild(row); foundItems.push({key,address,balance});
+  if(scrollAtBottom) modalInner.scrollTop = modalInner.scrollHeight;
+}
+
+function openModal(modal){ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+function closeModal(modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+
+openModalBtn.addEventListener('click',()=>openModal(modalBackdrop));
+closeModalBtn.addEventListener('click',()=>closeModal(modalBackdrop));
+clearFoundBtn.addEventListener('click',()=>{ modalRows.innerHTML=''; foundItems.length=0; emptyHint.style.display='block'; balanceList.innerHTML=''; balanceListContainer.style.display='none'; });
+modalBackdrop.addEventListener('click',(ev)=>{ if(ev.target===modalBackdrop) closeModal(modalBackdrop); });
+document.addEventListener('keydown',(ev)=>{ if(ev.key==='Escape') closeModal(modalBackdrop); });
+
+openHelpModalBtn.addEventListener('click',()=>openModal(helpModalBackdrop));
+closeHelpModalBtn.addEventListener('click',()=>closeModal(helpModalBackdrop));
+helpModalBackdrop.addEventListener('click',(ev)=>{ if(ev.target===helpModalBackdrop) closeModal(helpModalBackdrop); });
+
+runBtn.addEventListener('click',async()=>{
+  runBtn.disabled=true; keyVal.textContent='—'; addrVal.textContent='—'; balVal.textContent='—';
+  progress.textContent='Loading fake_blockchain.json ...';
+  
+  // [MODIFIKASI] Reset list saldo saat run dimulai
+  balanceList.innerHTML = '';
+  balanceListContainer.style.display = 'none';
+
+  let blockchain=null;
+  try{ const resp=await fetch('fake_blockchain.json',{cache:"no-store"}); if(!resp.ok) throw new Error('File not found'); blockchain=await resp.json(); }
+  catch(err){ progress.textContent='Error: tidak dapat load fake_blockchain.json'; runBtn.disabled=false; return; }
+  
+  progress.textContent='Starting RANDOM brute force (1..1000)...';
+  const maxKey=1000; let foundAny=false;
+  
+  // Buat array dengan semua key 1-1000, lalu shuffle (acak)
+  const allKeys = Array.from({length: maxKey}, (_, i) => i + 1);
+  // Fisher-Yates shuffle algorithm
+  for(let i = allKeys.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allKeys[i], allKeys[j]] = [allKeys[j], allKeys[i]];
+  }
+  
+  // Loop melalui key yang sudah diacak
+  for(let idx=0; idx<allKeys.length; idx++){
+    const key = allKeys[idx];
+    if(idx%10===0 || idx===0) progress.textContent=`Checking random key ${key} (${idx+1}/${maxKey})...`;
+    const buf=new ArrayBuffer(4); const dv=new DataView(buf); dv.setUint32(0,key,false); const u8=new Uint8Array(buf);
+    const address=await sha256(u8);
+    keyVal.textContent=key; addrVal.textContent=address; balVal.textContent='—';
+    if(Object.prototype.hasOwnProperty.call(blockchain,address)){
+      const rawBal=blockchain[address]; const bal=Number(rawBal);
+      appendFoundToModal(key,address,isNaN(bal)?rawBal:bal);
+      if(!isNaN(bal)&&bal>0){ 
+        balVal.textContent=bal+' BTC'; 
+        progress.textContent='FOUND!'; 
+        foundAny=true; 
+        
+        // [MODIFIKASI] Panggil fungsi untuk menambahkan ke list saldo
+        appendFoundToBalanceList(address, bal);
+      }
+      else balVal.textContent=String(rawBal);
+    }
+    if(idx%20===0) await new Promise(r=>setTimeout(r,0));
+  }
+  
+  if(!foundAny){ if(foundItems.length===0) progress.textContent='No addresses found in blockchain file'; else progress.textContent='Done (addresses found, open modal dengan !).'; }
+  runBtn.disabled=false;
+});
+</script>
+</body>
+</html>
